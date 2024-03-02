@@ -11,7 +11,6 @@ def download_all():
     os.makedirs('examples/move', exist_ok=True)
     os.makedirs('examples/paste', exist_ok=True)
     os.makedirs('examples/face', exist_ok=True)
-    """
     subprocess.run(shlex.split('wget https://huggingface.co/Adapter/DragonDiffusion/resolve/main/examples/move/001.png -O examples/move/001.png'))
     subprocess.run(shlex.split('wget https://huggingface.co/Adapter/DragonDiffusion/resolve/main/examples/move/002.png -O examples/move/002.png'))
     subprocess.run(shlex.split('wget https://huggingface.co/Adapter/DragonDiffusion/resolve/main/examples/move/003.png -O examples/move/003.png'))
@@ -51,7 +50,6 @@ def download_all():
     subprocess.run(shlex.split('wget https://huggingface.co/Adapter/DragonDiffusion/resolve/main/examples/appearance/004_base.jpg -O examples/appearance/004_base.jpg'))
     subprocess.run(shlex.split('wget https://huggingface.co/Adapter/DragonDiffusion/resolve/main/examples/appearance/005_replace.jpg -O examples/appearance/005_replace.jpg'))
     subprocess.run(shlex.split('wget https://huggingface.co/Adapter/DragonDiffusion/resolve/main/examples/appearance/005_base.jpeg -O examples/appearance/005_base.jpeg'))
-    """
     # download checkpoints
     os.makedirs('models', exist_ok=True)
     subprocess.run(shlex.split('wget https://huggingface.co/Adapter/DragonDiffusion/resolve/main/model/ip_sd15_64.bin -O models/ip_sd15_64.bin'))
