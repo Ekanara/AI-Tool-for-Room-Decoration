@@ -1,8 +1,10 @@
+# Adapted from https://github.com/MC-E/DragonDiffusion/blob/master/src/utils/utils.py
 import numpy as np
 import cv2
 from basicsr.utils import img2tensor
 import torch
 import torch.nn.functional as F
+import torchvision
 
 def resize_numpy_image(image, max_resolution=768 * 768, resize_short_edge=None):
     h, w = image.shape[:2]

@@ -1,3 +1,4 @@
+# Adapted from https://github.com/MC-E/DragonDiffusion/blob/master/src/models/Sampler.py
 from diffusers import StableDiffusionPipeline
 from typing import Any, Callable, Dict, List, Optional, Union
 import torch.nn.functional as F
@@ -9,7 +10,6 @@ import copy
 import numpy as np
 
 class Sampler(StableDiffusionPipeline):
-
     def edit(
         self,
         prompt:  List[str],

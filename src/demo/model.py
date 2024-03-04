@@ -1,8 +1,9 @@
-from src.models.dragondiff import DragonPipeline
+#Adapted from : https://github.com/MC-E/DragonDiffusion/tree/master
+
+from src.models.InteriorDiff import InteriorPipeline
 from src.utils.utils import resize_numpy_image, split_ldm, process_move, process_drag_face, process_drag, process_appearance, process_paste
 
 import torch
-import cv2
 from pytorch_lightning import seed_everything
 from PIL import Image
 from torchvision.transforms import PILToTensor
@@ -20,11 +21,11 @@ SIZES = {
     3:1,
 }
 
-class DragonModels():
+class InteriorModels():
     def __init__(self, pretrained_model_path):
         self.ip_scale = 0.1
         self.precision = torch.float16
-        self.editor = DragonPipeline(sd_id=pretrained_model_path, NUM_DDIM_STEPS=NUM_DDIM_STEPS, precision=self.precision, ip_scale=self.ip_scale)
+        self.editor = InteriorPipeline(sd_id=pretrained_model_path, NUM_DDIM_STEPS=NUM_DDIM_STEPS, precision=self.precision, ip_scale=self.ip_scale)
         self.up_ft_index = [1,2] # fixed in gradio demo
         self.up_scale = 2        # fixed in gradio demo
         self.device = 'cuda'     # fixed in gradio demo
@@ -33,7 +34,6 @@ class DragonModels():
         self.face_predictor = dlib.shape_predictor(SHAPE_PREDICTOR_PATH)
 
     def create_img(self, original_image,mask):
-
         pass
 
 
@@ -42,7 +42,7 @@ class DragonModels():
         energy_scale = energy_scale*1e3
         img = original_image
         img, input_scale = resize_numpy_image(img, max_resolution*max_resolution)
-        h, w = img.shape[1], img.shape[0] 
+        h, w = img.shape[1], img.shape[0]
         img = Image.fromarray(img)
         img_prompt = img.resize((256, 256))
         img_tensor = (PILToTensor()(img) / 255.0 - 0.5) * 2
@@ -60,7 +60,7 @@ class DragonModels():
         latent = self.editor.image2latent(img_tensor)
         ddim_latents = self.editor.ddim_inv(latent=latent, prompt=prompt)
         latent_in = ddim_latents[-1].squeeze(2)
-        
+
         scale = 8*SIZES[max(self.up_ft_index)]/self.up_scale
         x=[]
         y=[]
@@ -77,21 +77,21 @@ class DragonModels():
         dy = y_cur[0]-y[0]
 
         edit_kwargs = process_move(
-            path_mask=mask, 
-            h=h, 
-            w=w, 
-            dx=dx, 
-            dy=dy, 
-            scale=scale, 
-            input_scale=input_scale, 
-            resize_scale=resize_scale, 
-            up_scale=self.up_scale, 
-            up_ft_index=self.up_ft_index, 
-            w_edit=w_edit, 
-            w_content=w_content, 
-            w_contrast=w_contrast, 
-            w_inpaint=w_inpaint,  
-            precision=self.precision, 
+            path_mask=mask,
+            h=h,
+            w=w,
+            dx=dx,
+            dy=dy,
+            scale=scale,
+            input_scale=input_scale,
+            resize_scale=resize_scale,
+            up_scale=self.up_scale,
+            up_ft_index=self.up_ft_index,
+            w_edit=w_edit,
+            w_content=w_content,
+            w_contrast=w_contrast,
+            w_inpaint=w_inpaint,
+            precision=self.precision,
             path_mask_ref=mask_ref
         )
         # pre-process zT
@@ -122,11 +122,11 @@ class DragonModels():
             mode = 'move',
             emb_im=emb_im,
             emb_im_uncond=emb_im_uncond,
-            latent=latent_in, 
-            prompt=prompt, 
-            guidance_scale=guidance_scale, 
-            energy_scale=energy_scale,  
-            latent_noise_ref = ddim_latents, 
+            latent=latent_in,
+            prompt=prompt,
+            guidance_scale=guidance_scale,
+            energy_scale=energy_scale,
+            latent_noise_ref = ddim_latents,
             SDE_strength=SDE_strength,
             edit_kwargs=edit_kwargs,
         )
@@ -139,7 +139,7 @@ class DragonModels():
         seed_everything(seed)
         energy_scale = energy_scale*1e3
         img_base, input_scale = resize_numpy_image(img_base, max_resolution*max_resolution)
-        h, w = img_base.shape[1], img_base.shape[0] 
+        h, w = img_base.shape[1], img_base.shape[0]
         img_base = Image.fromarray(img_base)
         img_prompt_base = img_base.resize((256, 256))
         img_base_tensor = (PILToTensor()(img_base) / 255.0 - 0.5) * 2
@@ -166,31 +166,31 @@ class DragonModels():
         latent_replace = self.editor.image2latent(img_replace_tensor)
         ddim_latents = self.editor.ddim_inv(latent=torch.cat([latent_base, latent_replace]), prompt=[prompt, prompt_replace])
         latent_in = ddim_latents[-1][:1].squeeze(2)
-        
+
         scale = 8*SIZES[max(self.up_ft_index)]/self.up_scale
         edit_kwargs = process_appearance(
-            path_mask = mask_base, 
-            path_mask_replace = mask_replace, 
-            h = h, 
-            w = w, 
-            scale = scale, 
-            input_scale = input_scale, 
-            up_scale = self.up_scale, 
-            up_ft_index = self.up_ft_index, 
-            w_edit = w_edit, 
-            w_content = w_content, 
+            path_mask = mask_base,
+            path_mask_replace = mask_replace,
+            h = h,
+            w = w,
+            scale = scale,
+            input_scale = input_scale,
+            up_scale = self.up_scale,
+            up_ft_index = self.up_ft_index,
+            w_edit = w_edit,
+            w_content = w_content,
             precision = self.precision
         )
         latent_rec = self.editor.pipe.edit(
             mode = 'appearance',
             emb_im=emb_im,
             emb_im_uncond=emb_im_uncond,
-            latent=latent_in, 
-            prompt=prompt, 
-            guidance_scale=guidance_scale, 
-            energy_scale=energy_scale,  
+            latent=latent_in,
+            prompt=prompt,
+            guidance_scale=guidance_scale,
+            energy_scale=energy_scale,
             latent_noise_ref = ddim_latents,
-            SDE_strength=SDE_strength, 
+            SDE_strength=SDE_strength,
             edit_kwargs=edit_kwargs,
         )
         img_rec = self.editor.decode_latents(latent_rec)[:,:,::-1]
@@ -198,6 +198,7 @@ class DragonModels():
 
         return [img_rec]
 
+    """
     def run_drag_face(self, original_image, reference_image, w_edit, w_inpaint, seed, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale=0.05):
         seed_everything(seed)
         prompt = 'a photo of a human face'
@@ -266,7 +267,7 @@ class DragonModels():
             original_image = cv2.circle(original_image, (x_cur_i, y_cur_i), 6,(255,0,0),-1)
 
         return [img_rec, reference_image, original_image]
-
+    """
     def run_drag(self, original_image, mask, prompt, w_edit, w_content, w_inpaint, seed, selected_points, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale=None):
         seed_everything(seed)
         energy_scale = energy_scale*1e3
