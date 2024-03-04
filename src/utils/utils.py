@@ -1,3 +1,4 @@
+# Adapted from https://github.com/MC-E/DragonDiffusion/blob/master/src/utils/utils.py
 import numpy as np
 import cv2
 from basicsr.utils import img2tensor

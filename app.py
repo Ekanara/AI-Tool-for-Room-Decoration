@@ -1,22 +1,23 @@
 from src.demo.download import check_and_download, download_all
-check_and_download()
+# check_and_download()
+#download_all()
 
 from src.demo.demo import create_demo_move, create_demo_appearance, create_demo_drag, create_demo_face_drag, create_demo_paste
-from src.demo.model import DragonModels
+from src.demo.model import InteriorModels
 
 #import cv2
 import gradio as gr
 
 # main demo
 pretrained_model_path = "runwayml/stable-diffusion-v1-5"
-model = DragonModels(pretrained_model_path=pretrained_model_path)
-
+model = InteriorModels(pretrained_model_path=pretrained_model_path)
+"""
 DESCRIPTION = '# 🐉🐉[DragonDiffusion V1.0](https://github.com/MC-E/DragonDiffusion)🐉🐉'
 
 DESCRIPTION += f'<p>Gradio demo for [DragonDiffusion](https://arxiv.org/abs/2307.02421) and [DiffEditor](https://arxiv.org/abs/2307.02421). If it is helpful, please help to recommend [[GitHub Repo]](https://github.com/MC-E/DragonDiffusion) to your friends 😊 </p>'
-
+"""
 with gr.Blocks(css='style.css') as demo:
-    gr.Markdown(DESCRIPTION)
+  #  gr.Markdown(DESCRIPTION)
     with gr.Tabs():
         with gr.TabItem('Appearance Modulation'):
             create_demo_appearance(model.run_appearance)

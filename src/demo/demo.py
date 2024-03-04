@@ -266,11 +266,12 @@ def create_demo_move(runner):
             )
         with gr.Column():
             gr.Markdown("Try some of the examples below ⬇️")
+            """
             gr.Examples(
                 examples=examples_move,
                 inputs=[img_draw_box, prompt]
             )
-                    
+            """
         run_button.click(fn=runner, inputs=[original_image, mask, mask_ref, prompt, resize_scale, w_edit, w_content, w_contrast, w_inpaint, seed, selected_points, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
         clear_button.click(fn=fun_clear, inputs=[original_image, global_points, global_point_label, selected_points, mask_ref, mask, img_draw_box, img, im_w_mask_ref], outputs=[original_image, global_points, global_point_label, selected_points, mask_ref, mask, img_draw_box, img, im_w_mask_ref])
     return demo
@@ -364,10 +365,12 @@ def create_demo_appearance(runner):
         )
         with gr.Column():     
             gr.Markdown("Try some of the examples below ⬇️")
+            """
             gr.Examples(
                 examples=examples_appearance,
                 inputs=[img_base, img_replace, prompt, prompt_replace]
-            )
+                )
+            """
         clear_button.click(fn=fun_clear, inputs=[original_image_base, original_image_replace, global_points_base, global_points_replace, global_point_label_base, global_point_label_replace, img_base, img_replace, mask_base, mask_replace], outputs=[original_image_base, original_image_replace, global_points_base, global_points_replace, global_point_label_base, global_point_label_replace, img_base, img_replace, mask_base, mask_replace])
         run_button.click(fn=runner, inputs=[original_image_base, mask_base, original_image_replace, mask_replace, prompt, prompt_replace, w_edit, w_content, seed, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
     return demo
@@ -429,10 +432,12 @@ def create_demo_face_drag(runner):
                     output = gr.Gallery().style(grid=3, height='auto')
             with gr.Column():
                 gr.Markdown("Try some of the examples below ⬇️")
+                """
                 gr.Examples(
                     examples=examples_face,
                     inputs=[img_org, img_ref]
-                )
+                    )
+                """
         run_button.click(fn=runner, inputs=[img_org, img_ref, w_edit, w_inpaint, seed, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
     return demo
 
@@ -517,10 +522,12 @@ def create_demo_drag(runner):
                     output = gr.Gallery().style(grid=1, height='auto')
             with gr.Column():
                 gr.Markdown("Try some of the examples below ⬇️")
+                """
                 gr.Examples(
                     examples=examples_drag,
                     inputs=[img_m, prompt]
                 )
+                """
         run_button.click(fn=runner, inputs=[original_image, mask, prompt, w_edit, w_content, w_inpaint, seed, selected_points, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
         clear_button.click(fn=clear_points, inputs=[img_m], outputs=[selected_points, img])
     return demo
@@ -649,11 +656,12 @@ def create_demo_paste(runner):
         )
         with gr.Column():
             gr.Markdown("Try some of the examples below ⬇️")
+            """
             gr.Examples(
                 examples=examples_paste,
                 inputs=[img_base, img_replace, prompt, prompt_replace, dx, dy, resize_scale]
             )
-            
+            """
         clear_button.click(fn=fun_clear, inputs=[original_image, global_points, global_point_label, img_replace, mask_base, img_base], outputs=[original_image, global_points, global_point_label, img_replace, mask_base, img_base])
         run_button.click(fn=runner, inputs=[img_base, mask_base, original_image, prompt, prompt_replace, w_edit, w_content, seed, guidance_scale, energy_scale, dx, dy, resize_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
     return demo

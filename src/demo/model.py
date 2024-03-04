@@ -1,4 +1,5 @@
-from src.models.dragondiff import DragonPipeline
+#Adapted from : https://github.com/MC-E/DragonDiffusion/tree/master
+from src.models.InteriorDiff import InteriorPipeline
 from src.utils.utils import resize_numpy_image, split_ldm, process_move, process_drag_face, process_drag, process_appearance, process_paste
 
 import torch
@@ -20,11 +21,11 @@ SIZES = {
     3:1,
 }
 
-class DragonModels():
+class InteriorModels():
     def __init__(self, pretrained_model_path):
         self.ip_scale = 0.1
         self.precision = torch.float16
-        self.editor = DragonPipeline(sd_id=pretrained_model_path, NUM_DDIM_STEPS=NUM_DDIM_STEPS, precision=self.precision, ip_scale=self.ip_scale)
+        self.editor = InteriorPipeline(sd_id=pretrained_model_path, NUM_DDIM_STEPS=NUM_DDIM_STEPS, precision=self.precision, ip_scale=self.ip_scale)
         self.up_ft_index = [1,2] # fixed in gradio demo
         self.up_scale = 2        # fixed in gradio demo
         self.device = 'cuda'     # fixed in gradio demo
@@ -33,7 +34,6 @@ class DragonModels():
         self.face_predictor = dlib.shape_predictor(SHAPE_PREDICTOR_PATH)
 
     def create_img(self, original_image,mask):
-
         pass
 
 

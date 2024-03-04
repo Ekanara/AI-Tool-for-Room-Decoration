@@ -6,7 +6,7 @@
 
 import math
 from typing import Any, List, Tuple, Type
-
+from safetensors import safe_open
 import torch
 import torch.nn.functional as F
 
@@ -304,7 +304,16 @@ def build_efficient_sam(encoder_patch_embed_dim, encoder_num_heads, checkpoint=N
         pixel_std=[0.229, 0.224, 0.225],
     )
     if checkpoint is not None:
+
         with open(checkpoint, "rb") as f:
             state_dict = torch.load(f, map_location="cpu")
         sam.load_state_dict(state_dict["model"])
+        """
+        with safe_open(checkpoint, framework="pt", device="cpu") as f:
+            tensor_slice = f.get_slice("embedding")
+            vocab_size, hidden_dim = tensor_slice.get_shape()
+            tensor = tensor_slice[:, :hidden_dim]
     return sam
+"""
+
+

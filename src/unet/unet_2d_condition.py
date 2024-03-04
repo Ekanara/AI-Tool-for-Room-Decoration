@@ -1,4 +1,4 @@
-# Adapted from https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/unet_2d_condition.py
+# Adapted from https://github.com/MC-E/DragonDiffusion/blob/master/src/unet/unet_2d_condition.py
 
 import os, json
 from dataclasses import dataclass
@@ -37,7 +37,7 @@ class UNet2DConditionOutput(BaseOutput):
 
     sample: torch.FloatTensor
 
-class DragonUNet2DConditionModel(UNet2DConditionModel):
+class InteriorUNet2DConditionModel(UNet2DConditionModel):
     r"""
     UNet2DConditionModel is a conditional 2D UNet model that takes in a noisy sample, conditional state, and a timestep
     and returns sample shaped output.

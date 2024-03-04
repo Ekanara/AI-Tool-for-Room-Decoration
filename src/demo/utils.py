@@ -1,3 +1,5 @@
+#Adapted from : https://github.com/MC-E/DragonDiffusion/tree/master
+
 import numpy as np
 import gradio as gr
 import cv2
@@ -7,10 +9,11 @@ from torchvision import transforms
 from PIL import Image
 
 from sam.efficient_sam.build_efficient_sam import build_efficient_sam_vits
+from sam.efficient_sam.build_efficient_sam import build_interior
 from src.utils.utils import resize_numpy_image
 
-sam = build_efficient_sam_vits()
-
+#sam = build_interior()
+sam = build_efficient_sam_vits
 def show_point_or_box(image, global_points):
     # for point
     if len(global_points) == 1:

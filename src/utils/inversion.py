@@ -1,3 +1,5 @@
+# Adapted from https://github.com/MC-E/DragonDiffusion/blob/master/src/utils/inversion.py
+
 from typing import Optional, Union, Tuple, List, Callable, Dict
 from tqdm import tqdm
 import torch
