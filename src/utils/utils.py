@@ -6,7 +6,7 @@ import torch
 import torch.nn.functional as F
 import torchvision
 
-def resize_numpy_image(image, max_resolution=768 * 768, resize_short_edge=None):
+def resize_numpy_image(image, max_resolution=512 * 512, resize_short_edge=None):
     h, w = image.shape[:2]
     w_org = image.shape[1]
     if resize_short_edge is not None:
@@ -32,9 +32,13 @@ def process_move(path_mask, h, w, dx, dy, scale, input_scale, resize_scale, up_s
     dx, dy = dx*input_scale, dy*input_scale
     if isinstance(path_mask, str):
         mask_x0 = cv2.imread(path_mask)
+        print(mask_x0.shape)
     else:
         mask_x0 = path_mask
+        #print(mask_x0.shape)
+        assert not isinstance(mask_x0, type(None)), 'image not found'
     mask_x0 = cv2.resize(mask_x0, (h, w))
+    print(mask_x0.shape)
     if path_mask_ref is not None:
         if isinstance(path_mask_ref, str):
             mask_x0_ref = cv2.imread(path_mask_ref)
@@ -43,6 +47,7 @@ def process_move(path_mask, h, w, dx, dy, scale, input_scale, resize_scale, up_s
         mask_x0_ref = cv2.resize(mask_x0_ref, (h, w))
     else:
         mask_x0_ref=None
+
 
     mask_x0 = img2tensor(mask_x0)[0]
     mask_x0 = (mask_x0>0.5).float().to('cuda', dtype=precision)

@@ -12,7 +12,6 @@ from sam.efficient_sam.build_efficient_sam import build_efficient_sam_vits
 from sam.efficient_sam.build_efficient_sam import build_interior
 from src.utils.utils import resize_numpy_image
 
-#sam = build_interior()
 sam = build_efficient_sam_vits
 def show_point_or_box(image, global_points):
     # for point

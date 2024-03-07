@@ -18,7 +18,7 @@ from src.models.Sampler import Sampler
 
 # Adapted from DragonDiffusion
 class InteriorPipeline:
-    def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=50,
+    def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=30,
                  precision=torch.float32, ip_scale=0):
         unet = InteriorUNet2DConditionModel.from_pretrained(sd_id, subfolder="unet", torch_dtype=precision)
         tokenizer = CLIPTokenizer.from_pretrained(sd_id, subfolder="tokenizer")
@@ -119,7 +119,14 @@ class InteriorPipeline:
                                                    scale=scale, num_tokens=self.num_tokens).to('cuda',
                                                                                                dtype=self.precision)
         self.pipe.unet.set_attn_processor(attn_procs)
-        state_dict = torch.load(model_path, map_location="cpu")
-        self.image_proj_model.load_state_dict(state_dict["image_proj"], strict=True)
-        ip_layers = torch.nn.ModuleList(self.pipe.unet.attn_processors.values())
-        ip_layers.load_state_dict(state_dict["ip_adapter"], strict=True)
+        try:
+            state_dict = torch.load(model_path, map_location="cpu")
+            if "image_proj" not in state_dict or "ip_adapter" not in state_dict:
+                raise ValueError("Invalid state dictionary format. Missing required keys.")
+        except (FileNotFoundError, ValueError) as e:
+            print(f"Error loading model file: {e}")
+            # Handle the error or provide a default state_dict
+        else:
+            self.image_proj_model.load_state_dict(state_dict["image_proj"], strict=True)
+            ip_layers = torch.nn.ModuleList(self.pipe.unet.attn_processors.values())
+            ip_layers.load_state_dict(state_dict["ip_adapter"], strict=True)

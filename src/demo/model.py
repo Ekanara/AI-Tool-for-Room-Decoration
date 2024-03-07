@@ -13,7 +13,7 @@ from basicsr.utils import img2tensor
 from src.utils.alignment import align_face, get_landmark
 import dlib
 
-NUM_DDIM_STEPS = 50
+NUM_DDIM_STEPS = 30
 SIZES = {
     0:4,
     1:2,
@@ -26,7 +26,7 @@ class InteriorModels():
         self.ip_scale = 0.1
         self.precision = torch.float16
         self.editor = InteriorPipeline(sd_id=pretrained_model_path, NUM_DDIM_STEPS=NUM_DDIM_STEPS, precision=self.precision, ip_scale=self.ip_scale)
-        self.up_ft_index = [1,2] # fixed in gradio demo
+        self.up_ft_index = [2,1] # fixed in gradio demo
         self.up_scale = 2        # fixed in gradio demo
         self.device = 'cuda'     # fixed in gradio demo
         # face editing
