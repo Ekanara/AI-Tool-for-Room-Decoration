@@ -1,9 +1,6 @@
 # Adapted from https://github.com/MC-E/DragonDiffusion/blob/master/src/models/dragondiff.py
 import torch
-import torch.nn as nn
-import numpy as np
 from src.unet.unet_2d_condition import InteriorUNet2DConditionModel
-#from src.no_unet import utils_sd
 from src.unet.estimator import MyUNet2DConditionModel
 from diffusers import DDIMScheduler
 import gc
@@ -14,16 +11,16 @@ from transformers import CLIPTextModel, CLIPTokenizer
 from src.utils.inversion import DDIMInversion
 from src.unet.attention_processor import IPAttnProcessor, AttnProcessor, Resampler
 from transformers import CLIPVisionModelWithProjection, CLIPImageProcessor
-from src.models.Sampler import Sampler
+from src.models.StableDiffusionPipeline import DiffusionPipeline
 
 # Adapted from DragonDiffusion
 class InteriorPipeline:
-    def __init__(self, sd_id='stablediffusionapi/interiordesignsuperm', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=40,
+    def __init__(self, sd_id='stablediffusionapi/interiordesignsuperm', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=45,
                  precision=torch.float32, ip_scale=0):
         unet = InteriorUNet2DConditionModel.from_pretrained(sd_id, subfolder="unet", torch_dtype=precision)
         tokenizer = CLIPTokenizer.from_pretrained(sd_id, subfolder="tokenizer")
         text_encoder = CLIPTextModel.from_pretrained(sd_id, subfolder="text_encoder", torch_dtype=precision)
-        onestep_pipe = Sampler.from_pretrained(sd_id, unet=unet, safety_checker=None, feature_extractor=None,
+        onestep_pipe = DiffusionPipeline.from_pretrained(sd_id, unet=unet, safety_checker=None, feature_extractor=None,
                                                tokenizer=tokenizer, text_encoder=text_encoder, dtype=precision)
         onestep_pipe.vae = AutoencoderKL.from_pretrained(sd_id, subfolder="vae", torch_dtype=precision)
         onestep_pipe.scheduler = DDIMScheduler.from_pretrained(sd_id, subfolder="scheduler")
@@ -52,6 +49,12 @@ class InteriorPipeline:
         self.load_adapter(ip_id, ip_scale)
 
     @torch.no_grad()
+    def generate_prompt(self, color_tone, style, room):
+        # Create a prompt based on user choices
+        prompt = f"A {color_tone} {style} {room} interior design"
+        return prompt
+
+    @torch.no_grad()
     def decode_latents(self, latents):
         latents = 1 / 0.18215 * latents
         img = self.pipe.vae.decode(latents).sample
@@ -68,9 +71,9 @@ class InteriorPipeline:
             latents = latents * 0.18215
         return latents
 
-    def ddim_inv(self, latent, prompt, emb_im=None):
-        ddim_inv = DDIMInversion(model=self.pipe, NUM_DDIM_STEPS=self.NUM_DDIM_STEPS)
-        ddim_latents = ddim_inv.invert(ddim_latents=latent.unsqueeze(2), prompt=prompt, emb_im=emb_im)
+    def ddim_inv_img(self, latent, prompt, emb_im=None):
+        ddim_inv_img = DDIMInversion(model=self.pipe, NUM_DDIM_STEPS=self.NUM_DDIM_STEPS)
+        ddim_latents = ddim_inv_img.invert(ddim_latents=latent.unsqueeze(2), prompt=prompt, emb_im=emb_im)
         return ddim_latents
 
     def init_proj(self, precision):

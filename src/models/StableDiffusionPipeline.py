@@ -9,7 +9,7 @@ import torch.nn as nn
 import copy
 import numpy as np
 
-class Sampler(StableDiffusionPipeline):
+class DiffusionPipeline(StableDiffusionPipeline):
     def edit(
         self,
         prompt:  List[str],
@@ -17,10 +17,10 @@ class Sampler(StableDiffusionPipeline):
         emb_im,
         emb_im_uncond,
         edit_kwargs,
-        num_inference_steps: int = 40, # Change 50 to 40
+        num_inference_steps: int = 45, # Change 50 to 45
         guidance_scale: Optional[float] = 7.5,
         latent: Optional[torch.FloatTensor] = None,
-        start_time=40, #Change 50 to 34
+        start_time=45, #Change 50 to 34
         energy_scale = 0,
         SDE_strength = 0.4,
         SDE_strength_un = 0,
@@ -73,6 +73,8 @@ class Sampler(StableDiffusionPipeline):
                 if energy_scale!=0 and i<30 and (alg=='D' or i%2==0 or i<10):
                     # editing guidance
                     noise_pred_org = noise_pred
+                    if mode == 'generate':
+                        guidance = self.guidance_generate(latent=latent, latent_noise_ref=latent_noise_ref[-(i+1)], t=t, text_embeddings=text_embeddings_org, energy_scale=energy_scale, **edit_kwargs)
                     if mode == 'move':
                         guidance = self.guidance_move(latent=latent, latent_noise_ref=latent_noise_ref[-(i+1)], t=t, text_embeddings=text_embeddings_org, energy_scale=energy_scale, **edit_kwargs)
                     elif mode == 'drag':
@@ -145,6 +147,37 @@ class Sampler(StableDiffusionPipeline):
             latent = latent_prev
             
         return latent
+
+    def guidance_generate(self, latent, latent_noise_ref, t, text_embeddings, energy_scale, **edit_kwargs):
+        latent_in = torch.cat([latent.unsqueeze(2)] * 2)
+        latent_noise_ref_in = torch.cat([latent_noise_ref.unsqueeze(2)] * 2)
+
+        with torch.no_grad():
+            # Forward pass through the UNet for the original and reference latent samples
+            model_output_original = \
+            self.unet(latent_in, t, encoder_hidden_states=text_embeddings, mask=edit_kwargs['dict_mask'], save_kv=False,
+                      mode='generate', iter_cur=0)["sample"].squeeze(2)
+            model_output_reference = \
+            self.unet(latent_noise_ref_in, t, encoder_hidden_states=text_embeddings, mask=edit_kwargs['dict_mask'],
+                      save_kv=False, mode='generate', iter_cur=0)["sample"].squeeze(2)
+
+        # Calculate reconstruction loss
+        reconstruction_loss = F.mse_loss(model_output_original, latent)
+
+        # Calculate guidance loss
+        guidance_loss = F.mse_loss(model_output_original - model_output_reference, latent - latent_noise_ref)
+
+        # Combine losses with energy scaling
+        total_loss = reconstruction_loss + energy_scale * guidance_loss
+
+        # Calculate gradients and update latent variable
+        guidance = model_output_original - model_output_reference
+        self.optimizer.zero_grad()
+        total_loss.backward()
+        self.optimizer.step()
+
+        # Return the guidance for further processing if needed
+        return guidance
 
     def guidance_move(
         self, 

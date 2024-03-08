@@ -1,7 +1,6 @@
 import gradio as gr
 import numpy as np
 from src.demo.utils import get_point, store_img, get_point_move, store_img_move, clear_points, upload_image_move, segment_with_points, segment_with_points_paste, fun_clear, paste_with_mask_and_offset
-
 # Examples
 examples_move = [
     [
@@ -148,6 +147,36 @@ examples_paste = [
         0.8
     ],
 ]
+
+def create_demo_generate(runner):
+    with gr.Blocks() as demo:
+        gr.Button('Color Tone', choices=runner.color_tones, default=runner.current_color_tone, key="color_tone"),
+        gr.Button('Style', choices=runner.styles, default=runner.current_style, key="style"),
+        gr.Button('Room', choices=runner.rooms, default=runner.current_room, key="room"),
+
+    iface = gr.Interface(
+        fn=runner.run_generate_style,
+        inputs=[
+            demo,
+            "text",  # Assuming you have a text input for 'text_embedding'
+            "text",  # Assuming you have a text input for 'energy_scale'
+        ],
+        outputs="image",
+        live=True,
+        title="Diffusion Model UI",
+        description="Generate interior design images based on color tone, style, and room choices.",
+    )
+
+    def update_choices(color_tone, style, room, text_embedding, energy_scale):
+        runner.current_color_tone = color_tone
+        runner.current_style = style
+        runner.current_room = room
+        iface.update()
+
+    iface.launch(update_choices=update_choices)
+    return iface
+
+
 
 def create_demo_move(runner):
     DESCRIPTION = """

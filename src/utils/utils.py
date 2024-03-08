@@ -245,3 +245,8 @@ def process_paste(path_mask, h, w, dx, dy, scale, input_scale, up_scale, up_ft_i
         "w_edit":w_edit,
         "w_content":w_content,
     }
+
+def generate_style(self, color_tone, style, room):
+    # Create a prompt based on user choices
+    prompt = f"A {color_tone} {style} {room} interior design"
+    return prompt

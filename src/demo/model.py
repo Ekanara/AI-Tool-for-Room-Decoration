@@ -1,6 +1,6 @@
 # Adapted from : https://github.com/MC-E/DragonDiffusion/tree/master
 
-from src.models.InteriorDiff import InteriorPipeline
+from src.models.InteriorPipeline import InteriorPipeline
 from src.utils.utils import resize_numpy_image, split_ldm, process_move, process_drag_face, process_drag, \
     process_appearance, process_paste
 
@@ -11,10 +11,9 @@ from torchvision.transforms import PILToTensor
 import numpy as np
 import torch.nn.functional as F
 from basicsr.utils import img2tensor
-from src.utils.alignment import align_face, get_landmark
-import dlib
 
-NUM_DDIM_STEPS = 40
+
+NUM_DDIM_STEPS = 45
 SIZES = {
     0: 4,
     1: 2,
@@ -32,12 +31,39 @@ class InteriorModels():
         self.up_ft_index = [1, 2]  # fixed in gradio demo
         self.up_scale = 2  # fixed in gradio demo
         self.device = 'cuda'  # fixed in gradio demo
-        # face editing
-        # SHAPE_PREDICTOR_PATH = 'models/shape_predictor_68_face_landmarks.dat'
-        # self.face_predictor = dlib.shape_predictor(SHAPE_PREDICTOR_PATH)
+        self.color_tones = ['warm', 'cool', 'blue', 'green']
+        self.styles = ['wooden', 'modern', 'vintage', 'minimalist']
+        self.rooms = ['bedroom', 'living room', 'kitchen', 'bathroom']
+        self.current_color_tone = 'warm'
+        self.current_style = 'modern'
+        self.current_room = 'living room'
 
-    def create_img(self, original_image, mask):
-        pass
+    def run_generate_style(self, seed, text_embedding, prompt, energy_scale, ip_scale=None, color_tone=None, style=None,
+                           room=None):
+        seed_everything(seed)
+        energy_scale = energy_scale * 1e3
+
+        # Update color_tone, style, and room if provided
+        if color_tone is not None:
+            self.current_color_tone = color_tone
+        if style is not None:
+            self.current_style = style
+        if room is not None:
+            self.current_room = room
+
+        # Generate prompt based on the current choices
+        prompt = self.editor.generate_prompt(self.current_color_tone, self.current_style, self.current_room)
+
+        if ip_scale is not None and ip_scale != self.ip_scale:
+            self.ip_scale = ip_scale
+            self.editor.load_adapter(self.editor.ip_id, self.ip_scale)
+
+        # Assuming 'self.editor.pipe.generate_image' takes 'prompt', 'text_embedding', and 'energy_scale' as arguments
+        img = self.editor.pipe.generate_image(prompt, text_embedding, energy_scale)
+
+        torch.cuda.empty_cache()
+        return img
+
 
     def run_move(self, original_image, mask, mask_ref, prompt, resize_scale, w_edit, w_content, w_contrast, w_inpaint,
                  seed, selected_points, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale=None):
@@ -61,7 +87,7 @@ class InteriorModels():
             self.ip_scale = ip_scale
             self.editor.load_adapter(self.editor.ip_id, self.ip_scale)
         latent = self.editor.image2latent(img_tensor)
-        ddim_latents = self.editor.ddim_inv(latent=latent, prompt=prompt)
+        ddim_latents = self.editor.ddim_inv_img(latent=latent, prompt=prompt)
         latent_in = ddim_latents[-1].squeeze(2)
 
         scale = 8 * SIZES[max(self.up_ft_index)] / self.up_scale
@@ -180,7 +206,7 @@ class InteriorModels():
             self.editor.load_adapter(self.editor.ip_id, self.ip_scale)
         latent_base = self.editor.image2latent(img_base_tensor)
         latent_replace = self.editor.image2latent(img_replace_tensor)
-        ddim_latents = self.editor.ddim_inv(latent=torch.cat([latent_base, latent_replace]),
+        ddim_latents = self.editor.ddim_inv_img(latent=torch.cat([latent_base, latent_replace]),
                                             prompt=[prompt, prompt_replace])
         latent_in = ddim_latents[-1][:1].squeeze(2)
 
@@ -215,76 +241,6 @@ class InteriorModels():
 
         return [img_rec]
 
-    """
-    def run_drag_face(self, original_image, reference_image, w_edit, w_inpaint, seed, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale=0.05):
-        seed_everything(seed)
-        prompt = 'a photo of a human face'
-        energy_scale = energy_scale*1e3
-        original_image = np.array(align_face(original_image, self.face_predictor, 1024))
-        reference_image = np.array(align_face(reference_image, self.face_predictor, 1024))
-        ldm = get_landmark(original_image, self.face_predictor)
-        ldm_ref = get_landmark(reference_image, self.face_predictor)
-        x_cur, y_cur = split_ldm(ldm_ref)
-        x, y = split_ldm(ldm)
-        original_image, input_scale = resize_numpy_image(original_image, max_resolution*max_resolution)
-        reference_image, _ = resize_numpy_image(reference_image, max_resolution*max_resolution)
-        img = original_image
-        h, w = img.shape[1], img.shape[0] 
-        img = Image.fromarray(img)
-        img_prompt = img.resize((256, 256))
-        img_tensor = (PILToTensor()(img) / 255.0 - 0.5) * 2
-        img_tensor = img_tensor.to(self.device, dtype=self.precision).unsqueeze(0)
-
-        emb_im, emb_im_uncond = self.editor.get_image_embeds(img_prompt)
-        if ip_scale is not None and ip_scale != self.ip_scale:
-            self.ip_scale = ip_scale
-            self.editor.load_adapter(self.editor.ip_id, self.ip_scale)
-
-        latent = self.editor.image2latent(img_tensor)
-        ddim_latents = self.editor.ddim_inv(latent=latent, prompt=prompt)
-        latent_in = ddim_latents[-1].squeeze(2)
-        
-        scale = 8*SIZES[max(self.up_ft_index)]/self.up_scale
-        edit_kwargs = process_drag_face(
-            h=h, 
-            w=w, 
-            x=x,
-            y=y,
-            x_cur=x_cur,
-            y_cur=y_cur,
-            scale=scale, 
-            input_scale=input_scale, 
-            up_scale=self.up_scale, 
-            up_ft_index=self.up_ft_index, 
-            w_edit=w_edit, 
-            w_inpaint=w_inpaint,  
-            precision=self.precision, 
-        )
-        latent_rec = self.editor.pipe.edit(
-            mode = 'landmark',
-            emb_im=emb_im,
-            emb_im_uncond=emb_im_uncond,
-            latent=latent_in, 
-            prompt=prompt, 
-            guidance_scale=guidance_scale, 
-            energy_scale=energy_scale, 
-            latent_noise_ref = ddim_latents, 
-            edit_kwargs=edit_kwargs,
-            SDE_strength_un=SDE_strength,
-            SDE_strength = SDE_strength,
-        )
-        img_rec = self.editor.decode_latents(latent_rec)[:,:,::-1]
-        torch.cuda.empty_cache()
-        # draw editing direction
-        for x_cur_i, y_cur_i in zip(x_cur, y_cur):
-            reference_image = cv2.circle(reference_image, (x_cur_i, y_cur_i), 8,(255,0,0),-1)
-        for x_i, y_i, x_cur_i, y_cur_i in zip(x, y, x_cur, y_cur):
-            cv2.arrowedLine(original_image, (x_i, y_i), (x_cur_i, y_cur_i), (255, 255, 255), 4, tipLength=0.2)
-            original_image = cv2.circle(original_image, (x_i, y_i), 6,(0,0,255),-1)
-            original_image = cv2.circle(original_image, (x_cur_i, y_cur_i), 6,(255,0,0),-1)
-
-        return [img_rec, reference_image, original_image]
-    """
 
     def run_drag(self, original_image, mask, prompt, w_edit, w_content, w_inpaint, seed, selected_points,
                  guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale=None):
@@ -305,7 +261,7 @@ class InteriorModels():
             self.editor.load_adapter(self.editor.ip_id, self.ip_scale)
 
         latent = self.editor.image2latent(img_tensor)
-        ddim_latents = self.editor.ddim_inv(latent=latent, prompt=prompt)
+        ddim_latents = self.editor.ddim_inv_img(latent=latent, prompt=prompt)
         latent_in = ddim_latents[-1].squeeze(2)
 
         x = []
@@ -399,7 +355,7 @@ class InteriorModels():
                 img_replace_tensor = temp
 
         latent_replace = self.editor.image2latent(img_replace_tensor)
-        ddim_latents = self.editor.ddim_inv(latent=torch.cat([latent_base, latent_replace]),
+        ddim_latents = self.editor.ddim_inv_img(latent=torch.cat([latent_base, latent_replace]),
                                             prompt=[prompt, prompt_replace])
         latent_in = ddim_latents[-1][:1].squeeze(2)
 
