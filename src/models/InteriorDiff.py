@@ -18,7 +18,7 @@ from src.models.Sampler import Sampler
 
 # Adapted from DragonDiffusion
 class InteriorPipeline:
-    def __init__(self, sd_id='stablediffusionapi/interiordesignsuperm', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=34,
+    def __init__(self, sd_id='stablediffusionapi/interiordesignsuperm', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=40,
                  precision=torch.float32, ip_scale=0):
         unet = InteriorUNet2DConditionModel.from_pretrained(sd_id, subfolder="unet", torch_dtype=precision)
         tokenizer = CLIPTokenizer.from_pretrained(sd_id, subfolder="tokenizer")

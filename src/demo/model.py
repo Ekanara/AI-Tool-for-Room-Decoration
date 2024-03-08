@@ -14,7 +14,7 @@ from basicsr.utils import img2tensor
 from src.utils.alignment import align_face, get_landmark
 import dlib
 
-NUM_DDIM_STEPS = 34
+NUM_DDIM_STEPS = 40
 SIZES = {
     0: 4,
     1: 2,

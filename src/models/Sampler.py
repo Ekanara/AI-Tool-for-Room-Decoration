@@ -17,10 +17,10 @@ class Sampler(StableDiffusionPipeline):
         emb_im,
         emb_im_uncond,
         edit_kwargs,
-        num_inference_steps: int = 34, # Change 50 to 34
+        num_inference_steps: int = 40, # Change 50 to 40
         guidance_scale: Optional[float] = 7.5,
         latent: Optional[torch.FloatTensor] = None,
-        start_time=34, #Change 50 to 34
+        start_time=40, #Change 50 to 34
         energy_scale = 0,
         SDE_strength = 0.4,
         SDE_strength_un = 0,
