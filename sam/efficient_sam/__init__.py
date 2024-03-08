@@ -4,5 +4,4 @@
 from sam.efficient_sam.build_efficient_sam import (
     build_efficient_sam_vitt,
     build_efficient_sam_vits,
-    build_interior
 )

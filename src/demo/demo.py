@@ -385,14 +385,14 @@ def create_demo_face_drag(runner):
     with gr.Blocks() as demo:
         with gr.Row():
             gr.Markdown(DESCRIPTION)
-        with gr.Column(scale=1.9):
+        with gr.Column(scale=2):
             with gr.Row():
                 img_org = gr.Image(source='upload', label="Original Face", interactive=True, type="numpy")
                 img_ref = gr.Image(source='upload', label="Reference Face", interactive=True, type="numpy")
             with gr.Row():
                 run_button = gr.Button("Edit")
             with gr.Row():
-                with gr.Column(scale=1.9):
+                with gr.Column(scale=2):
                     with gr.Box():
                         seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
                         guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=4, minimum=1, maximum=10, step=0.1)
@@ -427,7 +427,7 @@ def create_demo_face_drag(runner):
                                         step=0.01,
                                         value=0.05,
                                         interactive=True)
-                with gr.Column(scale=1.9):
+                with gr.Column(scale=2):
                     gr.Markdown("<h5><center>Results</center></h5>")
                     output = gr.Gallery().style(grid=3, height='auto')
             with gr.Column():
@@ -456,7 +456,7 @@ def create_demo_drag(runner):
         original_image = gr.State(value=None) # store original image
         mask = gr.State(value=None) # store mask
         selected_points = gr.State([])
-        with gr.Column(scale=1.9):
+        with gr.Column(scale=2):
             with gr.Row():
                 img_m = gr.Image(source='upload', tool="sketch", label="Original Image", interactive=True, type="numpy")
                 img = gr.Image(source='upload', label="Original Image", interactive=True, type="numpy")
@@ -474,13 +474,13 @@ def create_demo_drag(runner):
                 run_button = gr.Button("Edit")
                 clear_button = gr.Button("Clear points")
             with gr.Row():
-                with gr.Column(scale=1.9):
+                with gr.Column(scale=2):
                     prompt = gr.Textbox(label="Prompt")
                     with gr.Box():
                         seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
                         guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=4, minimum=1, maximum=10, step=0.1)
                         energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=2, minimum=0, maximum=10, step=0.1)
-                        max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
+                        max_resolution = gr.Slider(label="Resolution", value=512, minimum=428, maximum=1024, step=1)
                         with gr.Accordion('Advanced options', open=False):
                             w_edit = gr.Slider(
                                         label="Weight of moving strength",
@@ -517,7 +517,7 @@ def create_demo_drag(runner):
                                         step=0.1,
                                         value=0.1,
                                         interactive=True)
-                with gr.Column(scale=1.9):
+                with gr.Column(scale=2):
                     gr.Markdown("<h5><center>Results</center></h5>")
                     output = gr.Gallery().style(grid=1, height='auto')
             with gr.Column():
@@ -591,7 +591,7 @@ def create_demo_paste(runner):
                     with gr.Box():
                         guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=4, minimum=1, maximum=10, step=0.1)
                         energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=1.5, minimum=0, maximum=10, step=0.1)
-                        max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
+                        max_resolution = gr.Slider(label="Resolution", value=512, minimum=428, maximum=1024, step=1)
                         with gr.Accordion('Advanced options', open=False):
                             seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
                             w_edit = gr.Slider(

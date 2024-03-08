@@ -20,12 +20,3 @@ def build_efficient_sam_vits():
         encoder_num_heads=6,
         checkpoint="models/efficient_sam_vits.pt",
     ).eval()
-
-
-
-def build_interior():
-    return build_efficient_sam(
-        encoder_patch_embed_dim=384,
-        encoder_num_heads=6,
-        checkpoint="models/interiordesignsuperm_v2.safetensors"
-    )

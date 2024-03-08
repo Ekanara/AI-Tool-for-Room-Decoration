@@ -12,11 +12,11 @@ import gradio as gr
 # main demo
 pretrained_model_path = "runwayml/stable-diffusion-v1-5"
 model = InteriorModels(pretrained_model_path=pretrained_model_path)
-
+"""
 DESCRIPTION = '# 🐉🐉[DragonDiffusion V1.0](https://github.com/MC-E/DragonDiffusion)🐉🐉'
 
 DESCRIPTION += f'<p>Gradio demo for [DragonDiffusion](https://arxiv.org/abs/2307.02421) and [DiffEditor](https://arxiv.org/abs/2307.02421). If it is helpful, please help to recommend [[GitHub Repo]](https://github.com/MC-E/DragonDiffusion) to your friends 😊 </p>'
-
+"""
 with gr.Blocks(css='style.css') as demo:
   #  gr.Markdown(DESCRIPTION)
     with gr.Tabs():

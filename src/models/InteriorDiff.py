@@ -18,7 +18,7 @@ from src.models.Sampler import Sampler
 
 # Adapted from DragonDiffusion
 class InteriorPipeline:
-    def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=30,
+    def __init__(self, sd_id='stablediffusionapi/interiordesignsuperm', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=34,
                  precision=torch.float32, ip_scale=0):
         unet = InteriorUNet2DConditionModel.from_pretrained(sd_id, subfolder="unet", torch_dtype=precision)
         tokenizer = CLIPTokenizer.from_pretrained(sd_id, subfolder="tokenizer")
@@ -30,7 +30,7 @@ class InteriorPipeline:
         onestep_pipe.estimator = MyUNet2DConditionModel.from_pretrained(sd_id, subfolder="unet", vae=None,
                                                                         text_encoder=None, tokenizer=None,
                                                                         scheduler=DDIMScheduler.from_pretrained(sd_id,
-                                                                                                                subfolder="scheduler"),
+                                                                        subfolder="scheduler"),
                                                                         safety_checker=None,
                                                                         feature_extractor=None, ).to('cuda',
                                                                                                      dtype=precision)

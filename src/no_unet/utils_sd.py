@@ -211,7 +211,7 @@ def register_normal_pipeline(pipe):
             prompt: Union[str, List[str]] = None,
             height: Optional[int] = None,
             width: Optional[int] = None,
-            num_inference_steps: int = 50,
+            num_inference_steps: int = 34,
             guidance_scale: float = 7.5,
             negative_prompt: Optional[Union[str, List[str]]] = None,
             num_images_per_prompt: Optional[int] = 1,
