@@ -295,3 +295,5 @@ def mask_image(image, mask, color=[255,0,0], alpha=0.5, max_resolution=None):
     contours = cv2.findContours(np.uint8(deepcopy(mask)), cv2.RETR_TREE, 
                         cv2.CHAIN_APPROX_SIMPLE)[-2:]
     return out
+
+

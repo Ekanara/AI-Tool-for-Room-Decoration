@@ -20,12 +20,12 @@ DESCRIPTION += f'<p>Gradio demo for [DragonDiffusion](https://arxiv.org/abs/2307
 with gr.Blocks(css='style.css') as demo:
   #  gr.Markdown(DESCRIPTION)
     with gr.Tabs():
+         #with gr.TabItem('Generate Image'):
+         #  create_demo_face_drag(model.run_drag_face)
         with gr.TabItem('Appearance Modulation'):
             create_demo_appearance(model.run_appearance)
         with gr.TabItem('Object Moving & Resizing'):
             create_demo_move(model.run_move)
-        #with gr.TabItem('Face Modulation'):
-        #   create_demo_face_drag(model.run_drag_face)
         with gr.TabItem('Content Dragging'):
             create_demo_drag(model.run_drag)
         with gr.TabItem('Object Pasting'):

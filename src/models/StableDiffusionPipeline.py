@@ -9,7 +9,7 @@ import torch.nn as nn
 import copy
 import numpy as np
 
-class Sampler(StableDiffusionPipeline):
+class DiffusionPipeline(StableDiffusionPipeline):
     def edit(
         self,
         prompt:  List[str],

@@ -1,7 +1,6 @@
 import gradio as gr
 import numpy as np
 from src.demo.utils import get_point, store_img, get_point_move, store_img_move, clear_points, upload_image_move, segment_with_points, segment_with_points_paste, fun_clear, paste_with_mask_and_offset
-
 # Examples
 examples_move = [
     [
@@ -148,6 +147,61 @@ examples_paste = [
         0.8
     ],
 ]
+
+def create_demo_generate(runner):
+    DESCRIPTION = """
+    ## Generate Image
+    Usage:
+    - Using label to generate an image."""
+    with gr.Blocks() as demo:
+        with gr.Row():
+            gr.Markdown(DESCRIPTION)
+        with gr.Column(scale=2):
+            with gr.Row():
+                prompt = gr.Textbox(label="Prompt")
+                run_button = gr.Button("Generate")
+            with gr.Row():
+                with gr.Column(scale=2):
+                    seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
+                    guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=4, minimum=1, maximum=10, step=0.1)
+                    energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=3, minimum=0, maximum=10, step=0.1)
+                    max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
+                    with gr.Accordion('Advanced options', open=False):
+                        w_edit = gr.Slider(
+                                    label="Weight of moving strength",
+                                    minimum=0,
+                                    maximum=20,
+                                    step=0.1,
+                                    value=12,
+                                    interactive=True)
+                        w_inpaint = gr.Slider(
+                                    label="Weight of inpainting strength",
+                                    minimum=0,
+                                    maximum=10,
+                                    step=0.1,
+                                    value=0.4,
+                                    interactive=True)
+                        SDE_strength = gr.Slider(
+                                    label="Flexibility strength",
+                                    minimum=0,
+                                    maximum=1,
+                                    step=0.1,
+                                    value=0.2,
+                                    interactive=True)
+                        ip_scale = gr.Slider(
+                                    label="Image prompt scale",
+                                    minimum=0,
+                                    maximum=1,
+                                    step=0.01,
+                                    value=0.05,
+                                    interactive=True)
+                with gr.Column(scale=2):
+                    gr.Markdown("<h5><center>Results</center></h5>")
+                    output = gr.Gallery().style(grid=3, height='auto')
+        run_button.click(fn=runner, inputs=[prompt, w_edit, w_inpaint, seed, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
+    return demo
+
+
 
 def create_demo_move(runner):
     DESCRIPTION = """

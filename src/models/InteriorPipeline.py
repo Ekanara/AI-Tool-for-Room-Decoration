@@ -14,7 +14,7 @@ from transformers import CLIPTextModel, CLIPTokenizer
 from src.utils.inversion import DDIMInversion
 from src.unet.attention_processor import IPAttnProcessor, AttnProcessor, Resampler
 from transformers import CLIPVisionModelWithProjection, CLIPImageProcessor
-from src.models.Sampler import Sampler
+from src.models.StableDiffusionPipeline import DiffusionPipeline
 
 # Adapted from DragonDiffusion
 class InteriorPipeline:
@@ -23,7 +23,7 @@ class InteriorPipeline:
         unet = InteriorUNet2DConditionModel.from_pretrained(sd_id, subfolder="unet", torch_dtype=precision)
         tokenizer = CLIPTokenizer.from_pretrained(sd_id, subfolder="tokenizer")
         text_encoder = CLIPTextModel.from_pretrained(sd_id, subfolder="text_encoder", torch_dtype=precision)
-        onestep_pipe = Sampler.from_pretrained(sd_id, unet=unet, safety_checker=None, feature_extractor=None,
+        onestep_pipe = DiffusionPipeline.from_pretrained(sd_id, unet=unet, safety_checker=None, feature_extractor=None,
                                                tokenizer=tokenizer, text_encoder=text_encoder, dtype=precision)
         onestep_pipe.vae = AutoencoderKL.from_pretrained(sd_id, subfolder="vae", torch_dtype=precision)
         onestep_pipe.scheduler = DDIMScheduler.from_pretrained(sd_id, subfolder="scheduler")

@@ -245,3 +245,19 @@ def process_paste(path_mask, h, w, dx, dy, scale, input_scale, up_scale, up_ft_i
         "w_edit":w_edit,
         "w_content":w_content,
     }
+
+def process_generate_style(room_types, colors, styles):
+    room_types = ["Living room", "Bedroom", "Kitchen", "Bathroom", "Office", "Balcony"]
+    colors = ["Light", "Warm", "Cool", "Dark"]
+    styles = ["Tropical", "Japanese", "Modern", "Classic", "Wooden", "Industrial", "Scandinavian", "Bohemian"]
+    room_type = None
+    color = None
+    style = None
+    return  {
+        "room_types" :room_types,
+        "colors" :colors,
+        "styles" :styles,
+        "room_type" :room_type,
+        "color" :color,
+        "style" :style,
+    }

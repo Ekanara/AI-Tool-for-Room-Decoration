@@ -1,8 +1,8 @@
 # Adapted from : https://github.com/MC-E/DragonDiffusion/tree/master
 
-from src.models.InteriorDiff import InteriorPipeline
+from src.models.InteriorPipeline import InteriorPipeline
 from src.utils.utils import resize_numpy_image, split_ldm, process_move, process_drag_face, process_drag, \
-    process_appearance, process_paste
+    process_appearance, process_paste, process_generate_style
 
 import torch
 from pytorch_lightning import seed_everything
@@ -11,8 +11,7 @@ from torchvision.transforms import PILToTensor
 import numpy as np
 import torch.nn.functional as F
 from basicsr.utils import img2tensor
-from src.utils.alignment import align_face, get_landmark
-import dlib
+
 
 NUM_DDIM_STEPS = 40
 SIZES = {
@@ -36,8 +35,43 @@ class InteriorModels():
         # SHAPE_PREDICTOR_PATH = 'models/shape_predictor_68_face_landmarks.dat'
         # self.face_predictor = dlib.shape_predictor(SHAPE_PREDICTOR_PATH)
 
-    def create_img(self, original_image, mask):
-        pass
+    def run_generate_style(self, room_type=None, tone_of_color=None, style=None):
+        """
+         This function generates a prompt for interior design based on the provided options.
+
+         If no options are provided, it uses default values.
+
+         Args:
+             room_type (str, optional): The type of room (e.g., "Living Room"). Defaults to None.
+             tone_of_color (str, optional): The desired tone for the room. Defaults to None.
+             style (str, optional): The design style (e.g., "Modern"). Defaults to None.
+
+         Returns:
+             str: The generated prompt for interior design.
+         """
+
+        prompt = "Design an interior for a "
+        prompt += room_type if room_type else "room"
+        prompt += " with "
+        prompt += tone_of_color if tone_of_color else "optional"
+        prompt += " tones and "
+        prompt += style if style else "chosen"
+        prompt += " style."
+        return prompt
+
+    def update_generate_prompt_data(self, category, value):
+        """
+        This function updates the internal prompt dictionary based on the selected category
+        and value.
+
+        Args:
+            category (str): The category to be updated (room_type, tone_of_color, or style).
+            value (str): The selected value for the category.
+        """
+
+        global prompts  # Access the global prompt dictionary
+        prompts[category] = value
+
 
     def run_move(self, original_image, mask, mask_ref, prompt, resize_scale, w_edit, w_content, w_contrast, w_inpaint,
                  seed, selected_points, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale=None):
@@ -215,76 +249,6 @@ class InteriorModels():
 
         return [img_rec]
 
-    """
-    def run_drag_face(self, original_image, reference_image, w_edit, w_inpaint, seed, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale=0.05):
-        seed_everything(seed)
-        prompt = 'a photo of a human face'
-        energy_scale = energy_scale*1e3
-        original_image = np.array(align_face(original_image, self.face_predictor, 1024))
-        reference_image = np.array(align_face(reference_image, self.face_predictor, 1024))
-        ldm = get_landmark(original_image, self.face_predictor)
-        ldm_ref = get_landmark(reference_image, self.face_predictor)
-        x_cur, y_cur = split_ldm(ldm_ref)
-        x, y = split_ldm(ldm)
-        original_image, input_scale = resize_numpy_image(original_image, max_resolution*max_resolution)
-        reference_image, _ = resize_numpy_image(reference_image, max_resolution*max_resolution)
-        img = original_image
-        h, w = img.shape[1], img.shape[0] 
-        img = Image.fromarray(img)
-        img_prompt = img.resize((256, 256))
-        img_tensor = (PILToTensor()(img) / 255.0 - 0.5) * 2
-        img_tensor = img_tensor.to(self.device, dtype=self.precision).unsqueeze(0)
-
-        emb_im, emb_im_uncond = self.editor.get_image_embeds(img_prompt)
-        if ip_scale is not None and ip_scale != self.ip_scale:
-            self.ip_scale = ip_scale
-            self.editor.load_adapter(self.editor.ip_id, self.ip_scale)
-
-        latent = self.editor.image2latent(img_tensor)
-        ddim_latents = self.editor.ddim_inv(latent=latent, prompt=prompt)
-        latent_in = ddim_latents[-1].squeeze(2)
-        
-        scale = 8*SIZES[max(self.up_ft_index)]/self.up_scale
-        edit_kwargs = process_drag_face(
-            h=h, 
-            w=w, 
-            x=x,
-            y=y,
-            x_cur=x_cur,
-            y_cur=y_cur,
-            scale=scale, 
-            input_scale=input_scale, 
-            up_scale=self.up_scale, 
-            up_ft_index=self.up_ft_index, 
-            w_edit=w_edit, 
-            w_inpaint=w_inpaint,  
-            precision=self.precision, 
-        )
-        latent_rec = self.editor.pipe.edit(
-            mode = 'landmark',
-            emb_im=emb_im,
-            emb_im_uncond=emb_im_uncond,
-            latent=latent_in, 
-            prompt=prompt, 
-            guidance_scale=guidance_scale, 
-            energy_scale=energy_scale, 
-            latent_noise_ref = ddim_latents, 
-            edit_kwargs=edit_kwargs,
-            SDE_strength_un=SDE_strength,
-            SDE_strength = SDE_strength,
-        )
-        img_rec = self.editor.decode_latents(latent_rec)[:,:,::-1]
-        torch.cuda.empty_cache()
-        # draw editing direction
-        for x_cur_i, y_cur_i in zip(x_cur, y_cur):
-            reference_image = cv2.circle(reference_image, (x_cur_i, y_cur_i), 8,(255,0,0),-1)
-        for x_i, y_i, x_cur_i, y_cur_i in zip(x, y, x_cur, y_cur):
-            cv2.arrowedLine(original_image, (x_i, y_i), (x_cur_i, y_cur_i), (255, 255, 255), 4, tipLength=0.2)
-            original_image = cv2.circle(original_image, (x_i, y_i), 6,(0,0,255),-1)
-            original_image = cv2.circle(original_image, (x_cur_i, y_cur_i), 6,(255,0,0),-1)
-
-        return [img_rec, reference_image, original_image]
-    """
 
     def run_drag(self, original_image, mask, prompt, w_edit, w_content, w_inpaint, seed, selected_points,
                  guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale=None):
