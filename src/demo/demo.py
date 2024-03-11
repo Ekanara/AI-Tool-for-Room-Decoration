@@ -152,24 +152,76 @@ def create_demo_generate(runner):
     ## Generate Image
     Usage:
     - Provide a seed for randomness, and set the maximum resolution, diffusion strength, and number of iterations.
-    - Optionally, provide a style encoding to generate an image with a specific style.
     """
     with gr.Blocks() as demo:
-        with gr.Row():
-            with gr.Column():
-                gr.Markdown(DESCRIPTION)
-                seed = gr.Textbox(label="Seed (for randomness)")
-                max_resolution = gr.Slider(minimum=64, maximum=1024, label="Max Resolution")
-                diffusion_strength = gr.Slider(minimum=0.01, maximum=1.0, label="Diffusion Strength")
-                num_iterations = gr.Slider(minimum=1, maximum=20, label="Number of Iterations")
-                style_encoding = gr.Textbox(label="Style Encoding (optional)")
-                run_button = gr.Button("Generate")
-        with gr.Column():
-            gr.Markdown("Results")
-            output = gr.Image()
-        run_button.click(fn=runner, inputs=[seed, max_resolution, diffusion_strength, num_iterations, style_encoding], outputs=[output])
-    return demo
+        layout = gr.Row(elem_alignment="space-between")  # Adjust layout as needed
 
+        with gr.Column():
+            gr.Markdown(DESCRIPTION)
+            def create_button_group(button_name, options_list):
+                def handle_click(event):
+                    # Update selected option
+                    selected_options[button_name] = event.widget.text
+
+                button_group = gr.Group()
+                for option in options_list:
+                    button = gr.Button(label=option, command=handle_click)
+                    button_group.add(button)
+                return button_group
+
+            # Tone of Color Options
+            tone_of_color_label = gr.Label("Tone of Color:")
+            color_tones = ['warm', 'cool', 'blue', 'green']  # Option List
+            tone_of_color_buttons = create_button_group("tone_of_color", color_tones)
+
+            # Arrange elements vertically
+            with gr.Row(elem_alignment="vertical"):
+                gr.Label(str(tone_of_color_label))  # Use gr.Label directly
+                tone_of_color_buttons
+
+            # Style Options
+            style_label = gr.Label("Style:")
+            styles = ['wooden', 'modern', 'vintage', 'minimalist']  # Option List
+            style_buttons = create_button_group("style", styles)
+
+            # Arrange elements vertically
+            with gr.Row(elem_alignment="vertical"):
+                gr.Label(str(style_label))  # Use gr.Label directly
+                style_buttons
+
+            # Room Type Options
+            room_type_label = gr.Label("Room Type:")
+            rooms = ['bedroom', 'living room', 'kitchen', 'bathroom']  # Option List
+            room_buttons = create_button_group("room_type", rooms)
+
+            # Arrange elements vertically
+            with gr.Row(elem_alignment="vertical"):
+                gr.Label(str(room_type_label))  # Use gr.Label directly
+                room_buttons
+
+
+        with gr.Column():
+            seed = gr.Slider(label="Seed")
+            max_resolution = gr.Slider(minimum=64, maximum=1024, label="Max Resolution")
+            diffusion_strength = gr.Slider(minimum=0.01, maximum=1.0, label="Diffusion Strength")
+            num_iterations = gr.Slider(minimum=1, maximum=20, label="Number of Iterations")
+
+            # This will hold the selected options
+            selected_options = {"tone_of_color": None, "style": None, "room_type": None}
+
+            style_encoding = {
+                "tone_of_color": selected_options["tone_of_color"],
+                "style": selected_options["style"],
+                "room_type": selected_options["room_type"]
+            }
+            run_button = gr.Button("Generate")
+
+            with gr.Column():
+                gr.Markdown("Results")
+                output = gr.Image()
+
+        #run_button.click(fn=runner, inputs=[seed, max_resolution, diffusion_strength, num_iterations, style_encoding], outputs=[output])
+    return demo
 
 
 

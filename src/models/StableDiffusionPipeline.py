@@ -17,10 +17,10 @@ class DiffusionPipeline(StableDiffusionPipeline):
         emb_im,
         emb_im_uncond,
         edit_kwargs,
-        num_inference_steps: int = 41, # Change 50 to 41
+        num_inference_steps: int = 50, # Change 50 to 41
         guidance_scale: Optional[float] = 7.5,
         latent: Optional[torch.FloatTensor] = None,
-        start_time=41, #Change 50 to 34
+        start_time=50, #Change 50 to 34
         energy_scale = 0,
         SDE_strength = 0.4,
         SDE_strength_un = 0,
@@ -73,8 +73,8 @@ class DiffusionPipeline(StableDiffusionPipeline):
                 if energy_scale!=0 and i<30 and (alg=='D' or i%2==0 or i<10):
                     # editing guidance
                     noise_pred_org = noise_pred
-                    if mode == 'generate':
-                        guidance = self.guidance_generate(latent=latent, latent_noise_ref=latent_noise_ref[-(i+1)], t=t, text_embeddings=text_embeddings_org, energy_scale=energy_scale, **edit_kwargs)
+                    #if mode == 'generate':
+                        #guidance = self.guidance_generate(latent=latent, latent_noise_ref=latent_noise_ref[-(i+1)], t=t, text_embeddings=text_embeddings_org, energy_scale=energy_scale, **edit_kwargs)
                     if mode == 'move':
                         guidance = self.guidance_move(latent=latent, latent_noise_ref=latent_noise_ref[-(i+1)], t=t, text_embeddings=text_embeddings_org, energy_scale=energy_scale, **edit_kwargs)
                     elif mode == 'drag':

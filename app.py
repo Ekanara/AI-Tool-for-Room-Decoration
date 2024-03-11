@@ -16,8 +16,8 @@ model = InteriorModels(pretrained_model_path=pretrained_model_path)
 with gr.Blocks(css='style.css') as demo:
   #  gr.Markdown(DESCRIPTION)
     with gr.Tabs():
-        #with gr.TabItem('Generate Image'):
-          #create_demo_generate(model.run_generate_style)
+        with gr.TabItem('Generate Image'):
+          create_demo_generate(model.run_generate_style)
         with gr.TabItem('Appearance Modulation'):
             create_demo_appearance(model.run_appearance)
         with gr.TabItem('Object Moving & Resizing'):
