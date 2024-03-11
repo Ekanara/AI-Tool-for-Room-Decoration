@@ -17,10 +17,10 @@ class DiffusionPipeline(StableDiffusionPipeline):
         emb_im,
         emb_im_uncond,
         edit_kwargs,
-        num_inference_steps: int = 45, # Change 50 to 45
+        num_inference_steps: int = 41, # Change 50 to 41
         guidance_scale: Optional[float] = 7.5,
         latent: Optional[torch.FloatTensor] = None,
-        start_time=45, #Change 50 to 34
+        start_time=41, #Change 50 to 34
         energy_scale = 0,
         SDE_strength = 0.4,
         SDE_strength_un = 0,

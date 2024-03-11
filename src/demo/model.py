@@ -13,7 +13,7 @@ import torch.nn.functional as F
 from basicsr.utils import img2tensor
 
 
-NUM_DDIM_STEPS = 45
+NUM_DDIM_STEPS = 41
 SIZES = {
     0: 4,
     1: 2,

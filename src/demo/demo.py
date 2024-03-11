@@ -147,34 +147,29 @@ examples_paste = [
         0.8
     ],
 ]
-
 def create_demo_generate(runner):
+    DESCRIPTION = """
+    ## Generate Image
+    Usage:
+    - Provide a seed for randomness, and set the maximum resolution, diffusion strength, and number of iterations.
+    - Optionally, provide a style encoding to generate an image with a specific style.
+    """
     with gr.Blocks() as demo:
-        gr.Button('Color Tone', choices=runner.color_tones, default=runner.current_color_tone, key="color_tone"),
-        gr.Button('Style', choices=runner.styles, default=runner.current_style, key="style"),
-        gr.Button('Room', choices=runner.rooms, default=runner.current_room, key="room"),
+        with gr.Row():
+            with gr.Column():
+                gr.Markdown(DESCRIPTION)
+                seed = gr.Textbox(label="Seed (for randomness)")
+                max_resolution = gr.Slider(minimum=64, maximum=1024, label="Max Resolution")
+                diffusion_strength = gr.Slider(minimum=0.01, maximum=1.0, label="Diffusion Strength")
+                num_iterations = gr.Slider(minimum=1, maximum=20, label="Number of Iterations")
+                style_encoding = gr.Textbox(label="Style Encoding (optional)")
+                run_button = gr.Button("Generate")
+        with gr.Column():
+            gr.Markdown("Results")
+            output = gr.Image()
+        run_button.click(fn=runner, inputs=[seed, max_resolution, diffusion_strength, num_iterations, style_encoding], outputs=[output])
+    return demo
 
-    iface = gr.Interface(
-        fn=runner.run_generate_style,
-        inputs=[
-            demo,
-            "text",  # Assuming you have a text input for 'text_embedding'
-            "text",  # Assuming you have a text input for 'energy_scale'
-        ],
-        outputs="image",
-        live=True,
-        title="Diffusion Model UI",
-        description="Generate interior design images based on color tone, style, and room choices.",
-    )
-
-    def update_choices(color_tone, style, room, text_embedding, energy_scale):
-        runner.current_color_tone = color_tone
-        runner.current_style = style
-        runner.current_room = room
-        iface.update()
-
-    iface.launch(update_choices=update_choices)
-    return iface
 
 
 
