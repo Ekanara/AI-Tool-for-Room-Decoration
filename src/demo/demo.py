@@ -147,83 +147,115 @@ examples_paste = [
         0.8
     ],
 ]
+
+
 def create_demo_generate(runner):
-    DESCRIPTION = """
-    ## Generate Image
-    Usage:
-    - Provide a seed for randomness, and set the maximum resolution, diffusion strength, and number of iterations.
-    """
     with gr.Blocks() as demo:
-        layout = gr.Row(elem_alignment="space-between")  # Adjust layout as needed
-
-        with gr.Column():
-            gr.Markdown(DESCRIPTION)
-            def create_button_group(button_name, options_list):
-                def handle_click(event):
-                    # Update selected option
-                    selected_options[button_name] = event.widget.text
-
-                button_group = gr.Group()
-                for option in options_list:
-                    button = gr.Button(label=option, command=handle_click)
-                    button_group.add(button)
-                return button_group
-
-            # Tone of Color Options
-            tone_of_color_label = gr.Label("Tone of Color:")
-            color_tones = ['warm', 'cool', 'blue', 'green']  # Option List
-            tone_of_color_buttons = create_button_group("tone_of_color", color_tones)
-
-            # Arrange elements vertically
-            with gr.Row(elem_alignment="vertical"):
-                gr.Label(str(tone_of_color_label))  # Use gr.Label directly
-                tone_of_color_buttons
-
-            # Style Options
-            style_label = gr.Label("Style:")
-            styles = ['wooden', 'modern', 'vintage', 'minimalist']  # Option List
-            style_buttons = create_button_group("style", styles)
-
-            # Arrange elements vertically
-            with gr.Row(elem_alignment="vertical"):
-                gr.Label(str(style_label))  # Use gr.Label directly
-                style_buttons
-
-            # Room Type Options
-            room_type_label = gr.Label("Room Type:")
-            rooms = ['bedroom', 'living room', 'kitchen', 'bathroom']  # Option List
-            room_buttons = create_button_group("room_type", rooms)
-
-            # Arrange elements vertically
-            with gr.Row(elem_alignment="vertical"):
-                gr.Label(str(room_type_label))  # Use gr.Label directly
-                room_buttons
-
-
-        with gr.Column():
-            seed = gr.Slider(label="Seed")
-            max_resolution = gr.Slider(minimum=64, maximum=1024, label="Max Resolution")
-            diffusion_strength = gr.Slider(minimum=0.01, maximum=1.0, label="Diffusion Strength")
-            num_iterations = gr.Slider(minimum=1, maximum=20, label="Number of Iterations")
-
-            # This will hold the selected options
-            selected_options = {"tone_of_color": None, "style": None, "room_type": None}
-
-            style_encoding = {
-                "tone_of_color": selected_options["tone_of_color"],
-                "style": selected_options["style"],
-                "room_type": selected_options["room_type"]
-            }
-            run_button = gr.Button("Generate")
-
+        color_tones = ['warm', 'cool', 'blue', 'green']  # Option List
+        styles = ['wooden', 'modern', 'vintage', 'minimalist']  # Option List
+        rooms = ['bedroom', 'living room', 'kitchen', 'bathroom']  # Option List
+        color_tone_buttons = {}
+        style_buttons = {}
+        room_buttons = {}
+        prompt = gr.State("")
+        with gr.Row():
             with gr.Column():
-                gr.Markdown("Results")
-                output = gr.Image()
+                with gr.Box():
+                    with gr.Column():
+                        gr.Markdown("Choose a color tone")
+                        for color_tone in color_tones:
+                            button = gr.Button(color_tone)
+                            button.on_click = lambda ct=color_tone: prompt.set(
+                                f"Generate a {ct}, {{prompt.value.get('style', '')}} {prompt.value.get('room', '')}")
+                            color_tone_buttons[color_tone] = button
+                with gr.Box():
+                    with gr.Column():
+                        gr.Markdown("Choose a style")
+                        for style in styles:
+                            button = gr.Button(style)
+                            # Update prompt on click using lambda with formatted string
+                            button.on_click = lambda s=style: prompt.set(
+                                f"Generate a {prompt.value.get('color', '')}, {s} {{prompt.value.get('room', '')}}")
+                            style_buttons[style] = button
+                with gr.Box():
+                    with gr.Column():
+                        gr.Markdown("Choose a room")
+                        for room in rooms:
+                            button = gr.Button(room)
+                            # Update prompt on click using lambda with formatted string
+                            button.on_click = lambda r=room: prompt.set(
+                                f"Generate a {prompt.value.get('color', '')}, {prompt.value.get('style', '')} {r}")
+                            room_buttons[room] = button
+                with gr.Row():
+                    run_button = gr.Button("Edit")
+                    clear_button = gr.Button("Clear")
+                with gr.Box():
+                    guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=4, minimum=1, maximum=10,
+                                               step=0.1)
+                    energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=0.5, minimum=0, maximum=10,
+                                             step=0.1)
+                    max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
+                    with gr.Accordion('Advanced options', open=False):
+                        seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
+                        resize_scale = gr.Slider(
+                            label="Object resizing scale",
+                            minimum=0,
+                            maximum=10,
+                            step=0.1,
+                            value=1,
+                            interactive=True)
+                        w_edit = gr.Slider(
+                            label="Weight of moving strength",
+                            minimum=0,
+                            maximum=10,
+                            step=0.1,
+                            value=4,
+                            interactive=True)
+                        w_content = gr.Slider(
+                            label="Weight of content consistency strength",
+                            minimum=0,
+                            maximum=10,
+                            step=0.1,
+                            value=6,
+                            interactive=True)
+                        w_contrast = gr.Slider(
+                            label="Weight of contrast strength",
+                            minimum=0,
+                            maximum=10,
+                            step=0.1,
+                            value=0.2,
+                            interactive=True)
+                        w_inpaint = gr.Slider(
+                            label="Weight of inpainting strength",
+                            minimum=0,
+                            maximum=10,
+                            step=0.1,
+                            value=0.8,
+                            interactive=True)
+                        SDE_strength = gr.Slider(
+                            label="Flexibility strength",
+                            minimum=0,
+                            maximum=1,
+                            step=0.1,
+                            value=0.4,
+                            interactive=True)
+                        ip_scale = gr.Slider(
+                            label="Image prompt scale",
+                            minimum=0,
+                            maximum=1,
+                            step=0.1,
+                            value=0.1,
+                            interactive=True)
+            with gr.Column():
+                with gr.Box():
+                    gr.Markdown("# OUTPUT")
+                    mask = gr.Image(source='upload', label="Mask of object", interactive=True, type="numpy")
+                    im_w_mask_ref = gr.Image(label="Mask of reference region", interactive=True, type="numpy")
 
-        #run_button.click(fn=runner, inputs=[seed, max_resolution, diffusion_strength, num_iterations, style_encoding], outputs=[output])
+                    gr.Markdown("<h5><center>Results</center></h5>")
+                    output = gr.Gallery().style(grid=1, height='auto')
+
     return demo
-
-
 
 def create_demo_move(runner):
     DESCRIPTION = """
@@ -233,7 +265,7 @@ def create_demo_move(runner):
     - Label the object's movement path on the source image.
     - Label reference region. (optional)
     - Add a text description to the image and click the `Edit` button to start editing."""
-    
+
     with gr.Blocks() as demo:
         original_image = gr.State(value=None) # store original image
         mask_ref = gr.State(value=None)

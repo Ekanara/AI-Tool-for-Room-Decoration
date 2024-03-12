@@ -28,4 +28,4 @@ with gr.Blocks(css='style.css') as demo:
             create_demo_paste(model.run_paste)
 
 demo.queue(concurrency_count=3, max_size=20)
-demo.launch(server_name="0.0.0.0", share=True)
+demo.launch(server_name="127.0.0.1", share=True)

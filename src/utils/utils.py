@@ -35,7 +35,7 @@ def process_move(path_mask, h, w, dx, dy, scale, input_scale, resize_scale, up_s
         print(mask_x0.shape)
     else:
         mask_x0 = path_mask
-        #print(mask_x0.shape)
+        print(mask_x0.shape)
         assert not isinstance(mask_x0, type(None)), 'image not found'
     mask_x0 = cv2.resize(mask_x0, (h, w))
     print(mask_x0.shape)
@@ -65,6 +65,7 @@ def process_move(path_mask, h, w, dx, dy, scale, input_scale, resize_scale, up_s
         sum_before = torch.sum(mask_cur)
         mask_cur = mask_cur[:,:,pad_size_y:pad_size_y+mask_org.shape[-2],pad_size_x:pad_size_x+mask_org.shape[-1]]
         sum_after = torch.sum(mask_cur)
+        print(sum_before, sum_after)
         if sum_after != sum_before:
             raise ValueError('Resize out of bounds, exiting.')
     else:
