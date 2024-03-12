@@ -150,6 +150,13 @@ examples_paste = [
 
 
 def create_demo_generate(runner):
+    DESCRIPTION = """
+        ## Image Generation
+        Usage:
+        - Choose a color tone, style, and room.
+        - Adjust the advanced options if needed.
+        - Click the `Edit` button to start editing.
+        """
     with gr.Blocks() as demo:
         color_tones = ['warm', 'cool', 'blue', 'green']  # Option List
         styles = ['wooden', 'modern', 'vintage', 'minimalist']  # Option List
@@ -158,6 +165,7 @@ def create_demo_generate(runner):
         style_buttons = {}
         room_buttons = {}
         prompt = gr.State("")
+        gr.Markdown(DESCRIPTION)
         with gr.Row():
             with gr.Column():
                 with gr.Box():
