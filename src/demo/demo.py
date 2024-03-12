@@ -254,6 +254,8 @@ def create_demo_generate(runner):
 
                     gr.Markdown("<h5><center>Results</center></h5>")
                     output = gr.Gallery().style(grid=1, height='auto')
+        run_button.click(fn=runner, inputs=[prompt, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
+        clear_button.click(fn=fun_clear, inputs=[prompt, mask, im_w_mask_ref], outputs=[prompt, mask, im_w_mask_ref])
 
     return demo
 
