@@ -161,42 +161,20 @@ def create_demo_generate(runner):
         color_tones = ['warm', 'cool', 'blue', 'green']  # Option List
         styles = ['wooden', 'modern', 'vintage', 'minimalist']  # Option List
         rooms = ['bedroom', 'living room', 'kitchen', 'bathroom']  # Option List
-        color_tone_buttons = {}
-        style_buttons = {}
-        room_buttons = {}
         prompt = gr.State("")
         gr.Markdown(DESCRIPTION)
         with gr.Row():
             with gr.Column():
                 with gr.Box():
-                    with gr.Column():
-                        gr.Markdown("Choose a color tone")
-                        for color_tone in color_tones:
-                            button = gr.Button(color_tone)
-                            button.on_click = lambda ct=color_tone: prompt.set(
-                                f"Generate a {ct}, {{prompt.value.get('style', '')}} {prompt.value.get('room', '')}")
-                            color_tone_buttons[color_tone] = button
+                    gr.Markdown("Choose a color tone")
+                    color_tone_dropdown = gr.Dropdown(color_tones)
                 with gr.Box():
-                    with gr.Column():
-                        gr.Markdown("Choose a style")
-                        for style in styles:
-                            button = gr.Button(style)
-                            # Update prompt on click using lambda with formatted string
-                            button.on_click = lambda s=style: prompt.set(
-                                f"Generate a {prompt.value.get('color', '')}, {s} {{prompt.value.get('room', '')}}")
-                            style_buttons[style] = button
+                    gr.Markdown("Choose a style")
+                    style_dropdown = gr.Dropdown(styles)
                 with gr.Box():
-                    with gr.Column():
-                        gr.Markdown("Choose a room")
-                        for room in rooms:
-                            button = gr.Button(room)
-                            # Update prompt on click using lambda with formatted string
-                            button.on_click = lambda r=room: prompt.set(
-                                f"Generate a {prompt.value.get('color', '')}, {prompt.value.get('style', '')} {r}")
-                            room_buttons[room] = button
-                with gr.Row():
-                    run_button = gr.Button("Edit")
-                    clear_button = gr.Button("Clear")
+                    gr.Markdown("Choose a room")
+                    room_dropdown = gr.Dropdown(rooms)
+
                 with gr.Box():
                     guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=4, minimum=1, maximum=10,
                                                step=0.1)
@@ -257,14 +235,21 @@ def create_demo_generate(runner):
             with gr.Column():
                 with gr.Box():
                     gr.Markdown("# OUTPUT")
-                    mask = gr.Image(source='upload', label="Mask of object", interactive=True, type="numpy")
-                    im_w_mask_ref = gr.Image(label="Mask of reference region", interactive=True, type="numpy")
+                    output = gr.Gallery(columns=1, height='auto')
+                with gr.Row():
+                    run_button = gr.Button("Generate")
+                    clear_button = gr.Button("Clear")
 
-                    gr.Markdown("<h5><center>Results</center></h5>")
-                    output = gr.Gallery().style(grid=1, height='auto')
         run_button.click(fn=runner, inputs=[prompt, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
-        clear_button.click(fn=fun_clear, inputs=[prompt, mask, im_w_mask_ref], outputs=[prompt, mask, im_w_mask_ref])
+        clear_button.click(fn=fun_clear, inputs=[prompt], outputs=[prompt])
 
+    # Define the custom CSS style for the "Generate" button
+    custom_css = """
+    .generate-button {
+        background-color: green;
+        color: white;
+    }
+    """
     return demo
 
 def create_demo_move(runner):
@@ -783,3 +768,5 @@ def create_demo_paste(runner):
         clear_button.click(fn=fun_clear, inputs=[original_image, global_points, global_point_label, img_replace, mask_base, img_base], outputs=[original_image, global_points, global_point_label, img_replace, mask_base, img_base])
         run_button.click(fn=runner, inputs=[img_base, mask_base, original_image, prompt, prompt_replace, w_edit, w_content, seed, guidance_scale, energy_scale, dx, dy, resize_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
     return demo
+
+
