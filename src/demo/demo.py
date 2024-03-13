@@ -158,9 +158,9 @@ def create_demo_generate(runner):
         - Click the `Edit` button to start editing.
         """
     with gr.Blocks() as demo:
-        color_tones = ['warm', 'cool', 'blue', 'green']  # Option List
-        styles = ['wooden', 'modern', 'vintage', 'minimalist']  # Option List
-        rooms = ['bedroom', 'living room', 'kitchen', 'bathroom']  # Option List
+        color_tones = ['Warm', 'Cool', 'Blue', 'Green']  # Option List
+        styles = ['Wooden', 'Modern', 'Vintage', 'Minimalist']  # Option List
+        rooms = ['Bedroom', 'Living room', 'Kitchen', 'Bathroom']  # Option List
         prompt = gr.State("")
         gr.Markdown(DESCRIPTION)
         with gr.Row():
@@ -236,21 +236,19 @@ def create_demo_generate(runner):
                 with gr.Box():
                     gr.Markdown("# OUTPUT")
                     output = gr.Gallery(columns=1, height='auto')
+
                 with gr.Row():
-                    run_button = gr.Button("Generate")
+                    run_button = gr.Button("Generate",css_class="generate-button")
                     clear_button = gr.Button("Clear")
+
 
         run_button.click(fn=runner, inputs=[prompt, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
         clear_button.click(fn=fun_clear, inputs=[prompt], outputs=[prompt])
 
-    # Define the custom CSS style for the "Generate" button
-    custom_css = """
-    .generate-button {
-        background-color: green;
-        color: white;
-    }
-    """
+
     return demo
+
+
 
 def create_demo_move(runner):
     DESCRIPTION = """

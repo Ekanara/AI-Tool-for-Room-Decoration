@@ -13,8 +13,14 @@ import gradio as gr
 pretrained_model_path = "runwayml/stable-diffusion-v1-5"
 model = InteriorModels(pretrained_model_path=pretrained_model_path)
 
-with gr.Blocks(css='style.css') as demo:
-  #  gr.Markdown(DESCRIPTION)
+DESCRIPTION = '''
+<div style="text-align: center; font-size: 30px;">
+    <p>😭😭<a href="https://github.com/Ekanara/AI-Tool-for-Room-Decoration">AI-Tool-for-Room-Decoration</a>😭😭</p>
+</div>
+'''
+
+with gr.Blocks(css=".gradio-container {background: url('file=background.png'); background-size: cover}") as demo:
+    gr.Markdown(DESCRIPTION)
     with gr.Tabs():
         with gr.TabItem('Generate Image'):
           create_demo_generate(model.run_generate_style)
