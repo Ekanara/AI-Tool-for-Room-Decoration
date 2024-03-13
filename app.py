@@ -18,8 +18,8 @@ DESCRIPTION = '''
     <p>😭😭<a href="https://github.com/Ekanara/AI-Tool-for-Room-Decoration">AI-Tool-for-Room-Decoration</a>😭😭</p>
 </div>
 '''
-
-with gr.Blocks(css=".gradio-container {background: url('file=background.png'); background-size: cover}") as demo:
+#with gr.Blocks(css=".gradio-container {background: url('file=background.png'); background-size: cover}") as demo:
+with gr.Blocks(css="css.style") as demo:
     gr.Markdown(DESCRIPTION)
     with gr.Tabs():
         with gr.TabItem('Generate Image'):
