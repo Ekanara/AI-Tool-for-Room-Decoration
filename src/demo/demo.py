@@ -164,12 +164,14 @@ def create_demo_generate(runner):
         styles = ['wooden', 'modern', 'vintage', 'minimalist']  # Option List
         rooms = ['bedroom', 'living room', 'kitchen', 'bathroom']  # Option List
         prompt = gr.State("")
-
+        def update_prompt():
+            prompt = gr.State(
+                f"Generate a {color_tone_dropdown.value} {style_dropdown.value} {room_dropdown.value}")
+            return prompt
         gr.Markdown(DESCRIPTION)
         with gr.Row():
             with gr.Column():
-                def update_prompt():
-                    prompt =gr.State(f"Generate a {color_tone_dropdown.value} {style_dropdown.value} {room_dropdown.value}")
+
                 with gr.Box():
                     gr.Markdown("Choose a color tone")
                     color_tone_dropdown = gr.Dropdown(color_tones)
@@ -215,8 +217,8 @@ def create_demo_generate(runner):
                             style_dropdown.change(fn=lambda: update_prompt())
                             room_dropdown.change(fn=lambda: update_prompt())
                             print(prompt)
+
             run_button.click(fn=runner,inputs=[prompt, guidance_scale, max_resolution], outputs=[output])
-            prompt = gr.State("")
     # Define the custom CSS style for the "Generate" button
     custom_css = """
     .generate-button {
