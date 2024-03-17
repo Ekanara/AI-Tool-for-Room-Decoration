@@ -1,5 +1,6 @@
 import gradio as gr
 import numpy as np
+from PIL import Image
 from src.demo.utils import get_point, store_img, get_point_move, store_img_move, clear_points, upload_image_move, segment_with_points, segment_with_points_paste, fun_clear, paste_with_mask_and_offset
 # Examples
 examples_move = [
@@ -149,22 +150,26 @@ examples_paste = [
 ]
 
 
+
 def create_demo_generate(runner):
     DESCRIPTION = """
         ## Image Generation
         Usage:
         - Choose a color tone, style, and room.
         - Adjust the advanced options if needed.
-        - Click the `Edit` button to start editing.
+        - Click the `Generate` button to generate the image.
         """
     with gr.Blocks() as demo:
-        color_tones = ['warm', 'cool', 'blue', 'green']  # Option List
+        color_tones = ['warm', 'cool', 'dark', 'light']  # Option List
         styles = ['wooden', 'modern', 'vintage', 'minimalist']  # Option List
         rooms = ['bedroom', 'living room', 'kitchen', 'bathroom']  # Option List
         prompt = gr.State("")
+
         gr.Markdown(DESCRIPTION)
         with gr.Row():
             with gr.Column():
+                def update_prompt():
+                    prompt =gr.State(f"Generate a {color_tone_dropdown.value} {style_dropdown.value} {room_dropdown.value}")
                 with gr.Box():
                     gr.Markdown("Choose a color tone")
                     color_tone_dropdown = gr.Dropdown(color_tones)
@@ -179,70 +184,39 @@ def create_demo_generate(runner):
                     guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=4, minimum=1, maximum=10,
                                                step=0.1)
                     energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=0.5, minimum=0, maximum=10,
-                                             step=0.1)
+                                              step=0.1)
                     max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
-                    with gr.Accordion('Advanced options', open=False):
-                        seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
-                        resize_scale = gr.Slider(
-                            label="Object resizing scale",
-                            minimum=0,
-                            maximum=10,
-                            step=0.1,
-                            value=1,
-                            interactive=True)
-                        w_edit = gr.Slider(
-                            label="Weight of moving strength",
-                            minimum=0,
-                            maximum=10,
-                            step=0.1,
-                            value=4,
-                            interactive=True)
-                        w_content = gr.Slider(
-                            label="Weight of content consistency strength",
-                            minimum=0,
-                            maximum=10,
-                            step=0.1,
-                            value=6,
-                            interactive=True)
-                        w_contrast = gr.Slider(
-                            label="Weight of contrast strength",
-                            minimum=0,
-                            maximum=10,
-                            step=0.1,
-                            value=0.2,
-                            interactive=True)
-                        w_inpaint = gr.Slider(
-                            label="Weight of inpainting strength",
-                            minimum=0,
-                            maximum=10,
-                            step=0.1,
-                            value=0.8,
-                            interactive=True)
-                        SDE_strength = gr.Slider(
-                            label="Flexibility strength",
-                            minimum=0,
-                            maximum=1,
-                            step=0.1,
-                            value=0.4,
-                            interactive=True)
-                        ip_scale = gr.Slider(
-                            label="Image prompt scale",
-                            minimum=0,
-                            maximum=1,
-                            step=0.1,
-                            value=0.1,
-                            interactive=True)
+                    #with gr.Accordion('Advanced options', open=False):
+                    """
+                    seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
+                    SDE_strength = gr.Slider(
+                        label="Flexibility strength",
+                        minimum=0,
+                        maximum=1,
+                        step=0.1,
+                        value=0.4,
+                        interactive=True)
+                    ip_scale = gr.Slider(
+                        label="Image prompt scale",
+                        minimum=0,
+                        maximum=1,
+                        step=0.1,
+                        value=0.1,
+                        interactive=True)
+                    """
             with gr.Column():
                 with gr.Box():
                     gr.Markdown("# OUTPUT")
-                    output = gr.Gallery(columns=1, height='auto')
-                with gr.Row():
-                    run_button = gr.Button("Generate")
-                    clear_button = gr.Button("Clear")
-
-        run_button.click(fn=runner, inputs=[prompt, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
-        clear_button.click(fn=fun_clear, inputs=[prompt], outputs=[prompt])
-
+                    output = gr.outputs.Image(type="pil")
+                    with gr.Row():
+                        run_button = gr.Button("Generate")
+                        if run_button.click:
+                            color_tone_dropdown.change(fn=lambda: update_prompt())
+                            style_dropdown.change(fn=lambda: update_prompt())
+                            room_dropdown.change(fn=lambda: update_prompt())
+                            print(prompt)
+            run_button.click(fn=runner,inputs=[prompt, guidance_scale, max_resolution], outputs=[output])
+            prompt = gr.State("")
     # Define the custom CSS style for the "Generate" button
     custom_css = """
     .generate-button {
@@ -279,8 +253,8 @@ def create_demo_move(runner):
                     img = gr.Image(source='upload', label="Original image", interactive=True, type="numpy")
 
                     gr.Markdown("## 3. Label reference region (Optional)")
-                    img_ref = gr.Image(tool="sketch", label="Original image", interactive=True, type="numpy") 
-        
+                    img_ref = gr.Image(tool="sketch", label="Original image", interactive=True, type="numpy")
+
                     gr.Markdown("## 4. Prompt")
                     prompt = gr.Textbox(label="Prompt")
 
@@ -348,9 +322,9 @@ def create_demo_move(runner):
                     gr.Markdown("# OUTPUT")
                     mask = gr.Image(source='upload', label="Mask of object", interactive=True, type="numpy")
                     im_w_mask_ref = gr.Image(label="Mask of reference region", interactive=True, type="numpy")
-                    
+
                     gr.Markdown("<h5><center>Results</center></h5>")
-                    output = gr.Gallery().style(grid=1, height='auto')     
+                    output = gr.Gallery().style(grid=1, height='auto')
 
             img.select(
                 get_point_move,
@@ -358,8 +332,8 @@ def create_demo_move(runner):
                 [img, original_image, selected_points],
             )
             img_draw_box.select(
-                segment_with_points, 
-                inputs=[img_draw_box, original_image, global_points, global_point_label, img], 
+                segment_with_points,
+                inputs=[img_draw_box, original_image, global_points, global_point_label, img],
                 outputs=[img_draw_box, original_image, mask, global_points, global_point_label, img, img_ref]
             )
             img_ref.edit(
