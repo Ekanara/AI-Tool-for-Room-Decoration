@@ -9,7 +9,7 @@ import torch.nn as nn
 import copy
 import numpy as np
 
-class DiffusionPipeline(StableDiffusionPipeline):
+class Sampler(StableDiffusionPipeline):
     def edit(
         self,
         prompt:  List[str],
@@ -518,3 +518,4 @@ class DiffusionPipeline(StableDiffusionPipeline):
         self.estimator.zero_grad()
 
         return guidance
+
