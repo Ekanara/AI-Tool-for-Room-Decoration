@@ -149,8 +149,6 @@ examples_paste = [
     ],
 ]
 
-
-
 def create_demo_generate(runner):
     DESCRIPTION = """
         ## Image Generation
@@ -160,33 +158,23 @@ def create_demo_generate(runner):
         - Click the `Generate` button to generate the image.
         """
     with gr.Blocks() as demo:
-        color_tones = ['warm', 'cool', 'dark', 'light']  # Option List
-        styles = ['wooden', 'modern', 'vintage', 'minimalist']  # Option List
-        rooms = ['bedroom', 'living room', 'kitchen', 'bathroom']  # Option List
-        prompt = gr.State("")
-        def update_prompt():
-            prompt = gr.State(
-                f"Generate a {color_tone_dropdown.value} {style_dropdown.value} {room_dropdown.value}")
-            return prompt
         gr.Markdown(DESCRIPTION)
         with gr.Row():
             with gr.Column():
-
+                prompt = gr.Textbox(
+                    label="Enter your prompt",
+                    show_label=False,
+                    max_lines=1,
+                    placeholder="Enter your prompt",
+                    container=False,
+                )
                 with gr.Box():
-                    gr.Markdown("Choose a color tone")
-                    color_tone_dropdown = gr.Dropdown(color_tones)
-                with gr.Box():
-                    gr.Markdown("Choose a style")
-                    style_dropdown = gr.Dropdown(styles)
-                with gr.Box():
-                    gr.Markdown("Choose a room")
-                    room_dropdown = gr.Dropdown(rooms)
-
-                with gr.Box():
-                    guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=4, minimum=1, maximum=10,
+                    guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=7.5, minimum=1, maximum=10,
                                                step=0.1)
+                    """
                     energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=0.5, minimum=0, maximum=10,
                                               step=0.1)
+                    """
                     max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
                     #with gr.Accordion('Advanced options', open=False):
                     """
@@ -209,25 +197,14 @@ def create_demo_generate(runner):
             with gr.Column():
                 with gr.Box():
                     gr.Markdown("# OUTPUT")
-                    output = gr.outputs.Image(type="pil")
+                    output = gr.outputs.Image(type="pil").style(rounded=True)
                     with gr.Row():
                         run_button = gr.Button("Generate")
-                        if run_button.click:
-                            color_tone_dropdown.change(fn=lambda: update_prompt())
-                            style_dropdown.change(fn=lambda: update_prompt())
-                            room_dropdown.change(fn=lambda: update_prompt())
-                            print(prompt)
 
-            run_button.click(fn=runner,inputs=[prompt, guidance_scale, max_resolution], outputs=[output])
-    # Define the custom CSS style for the "Generate" button
-    custom_css = """
-    .generate-button {
-        background-color: green;
-        color: white;
-    }
-    """
+        prompt.submit(fn=runner, inputs=[prompt, guidance_scale, max_resolution], outputs=[output])
+        run_button.click(fn=runner, inputs=[prompt, guidance_scale, max_resolution], outputs=[output])
+        # Define the custom CSS style for the "Generate" button
     return demo
-
 def create_demo_move(runner):
     DESCRIPTION = """
     ## Object Moving & Resizing
@@ -745,4 +722,73 @@ def create_demo_paste(runner):
         run_button.click(fn=runner, inputs=[img_base, mask_base, original_image, prompt, prompt_replace, w_edit, w_content, seed, guidance_scale, energy_scale, dx, dy, resize_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
     return demo
 
+"""
+def create_demo_generate(runner):
+    DESCRIPTION = 
+        ## Image Generation
+        Usage:
+        - Choose a color tone, style, and room.
+        - Adjust the advanced options if needed.
+        - Click the `Generate` button to generate the image.
+        
+    with gr.Blocks() as demo:
+        color_tones = ['warm', 'cool', 'dark', 'light']  # Option List
+        styles = ['wooden', 'modern', 'vintage', 'minimalist']  # Option List
+        rooms = ['bedroom', 'living room', 'kitchen', 'bathroom']  # Option List
+        prompt = gr.State("")
+        def update_prompt():
+            prompt = gr.State(
+                f"Generate a {color_tone_dropdown.value} {style_dropdown.value} {room_dropdown.value}")
+            return prompt
+        gr.Markdown(DESCRIPTION)
+        with gr.Row():
+            with gr.Column():
 
+                with gr.Box():
+                    gr.Markdown("Choose a color tone")
+                    color_tone_dropdown = gr.Dropdown(color_tones)
+                with gr.Box():
+                    gr.Markdown("Choose a style")
+                    style_dropdown = gr.Dropdown(styles)
+                with gr.Box():
+                    gr.Markdown("Choose a room")
+                    room_dropdown = gr.Dropdown(rooms)
+
+                with gr.Box():
+                    guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=4, minimum=1, maximum=10,
+                                               step=0.1)
+                    energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=0.5, minimum=0, maximum=10,
+                                              step=0.1)
+                    max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
+                    #with gr.Accordion('Advanced options', open=False):
+                    seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
+                    SDE_strength = gr.Slider(
+                        label="Flexibility strength",
+                        minimum=0,
+                        maximum=1,
+                        step=0.1,
+                        value=0.4,
+                        interactive=True)
+                    ip_scale = gr.Slider(
+                        label="Image prompt scale",
+                        minimum=0,
+                        maximum=1,
+                        step=0.1,
+                        value=0.1,
+                        interactive=True)
+            with gr.Column():
+                with gr.Box():
+                    gr.Markdown("# OUTPUT")
+                    output = gr.outputs.Image(type="pil")
+                    with gr.Row():
+                        run_button = gr.Button("Generate")
+                        if run_button.click:
+                            color_tone_dropdown.change(fn=lambda: update_prompt())
+                            style_dropdown.change(fn=lambda: update_prompt())
+                            room_dropdown.change(fn=lambda: update_prompt())
+                            print(prompt)
+
+            run_button.click(fn=runner,inputs=[prompt, guidance_scale, max_resolution], outputs=[output])
+   
+    return demo
+"""

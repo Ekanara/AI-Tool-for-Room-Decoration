@@ -11,6 +11,7 @@ from PIL import Image
 from sam.efficient_sam.build_efficient_sam import build_efficient_sam_vits
 from src.utils.utils import resize_numpy_image
 
+
 sam = build_efficient_sam_vits()
 def show_point_or_box(image, global_points):
     # for point
@@ -295,5 +296,6 @@ def mask_image(image, mask, color=[255,0,0], alpha=0.5, max_resolution=None):
     contours = cv2.findContours(np.uint8(deepcopy(mask)), cv2.RETR_TREE, 
                         cv2.CHAIN_APPROX_SIMPLE)[-2:]
     return out
+
 
 

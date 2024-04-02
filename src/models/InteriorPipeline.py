@@ -36,6 +36,7 @@ class InteriorPipeline:
         onestep_pipe = onestep_pipe.to("cuda")
         onestep_pipe.enable_attention_slicing()
         onestep_pipe.enable_xformers_memory_efficient_attention()
+#        onestep_pipe.enable_freeu(s1=0.9,s2=0.2,b1=1.5,b2=1.6)
         self.pipe = onestep_pipe
         self.NUM_DDIM_STEPS = NUM_DDIM_STEPS
         self.precision = precision
@@ -47,12 +48,6 @@ class InteriorPipeline:
         self.num_tokens = 64
         self.image_proj_model = self.init_proj(precision)
         self.load_adapter(ip_id, ip_scale)
-
-    @torch.no_grad()
-    def generate_prompt(self, color_tone, style, room):
-        # Create a prompt based on user choices
-        prompt = f"A {color_tone} {style} {room} interior design"
-        return prompt
 
     @torch.no_grad()
     def decode_latents(self, latents):
