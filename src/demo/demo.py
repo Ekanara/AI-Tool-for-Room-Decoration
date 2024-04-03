@@ -2,6 +2,7 @@ import gradio as gr
 import numpy as np
 from PIL import Image
 from src.demo.utils import get_point, store_img, get_point_move, store_img_move, clear_points, upload_image_move, segment_with_points, segment_with_points_paste, fun_clear, paste_with_mask_and_offset
+
 # Examples
 examples_move = [
     [
