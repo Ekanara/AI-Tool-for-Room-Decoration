@@ -1,7 +1,7 @@
 ""
 from src.demo.download import check_and_download, download_all
-# check_and_download()
-#download_all()
+check_and_download()
+download_all()
 
 from src.demo.demo import create_demo_move, create_demo_appearance, create_demo_drag, create_demo_face_drag, create_demo_paste,create_demo_generate
 from src.demo.model import InteriorModels
@@ -24,7 +24,7 @@ with gr.Blocks(css="css.style") as demo:
     gr.Markdown(DESCRIPTION)
     with gr.Tabs():
         with gr.TabItem('Generate Image'):
-          create_demo_generate(run_generate_style)
+            create_demo_generate(run_generate_style)
         with gr.TabItem('Appearance Modulation'):
             create_demo_appearance(model.run_appearance)
         with gr.TabItem('Object Moving & Resizing'):
