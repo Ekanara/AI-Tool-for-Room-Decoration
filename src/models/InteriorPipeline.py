@@ -15,7 +15,7 @@ from src.models.StableDiffusionPipeline import DiffusionPipeline
 
 # Adapted from DragonDiffusion
 class InteriorPipeline:
-    def __init__(self, sd_id='stablediffusionapi/interiordesignsuperm', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=45,
+    def __init__(self, sd_id='stablediffusionapi/interiordesignsuperm', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=50,
                  precision=torch.float32, ip_scale=0):
         unet = InteriorUNet2DConditionModel.from_pretrained(sd_id, subfolder="unet", torch_dtype=precision)
         tokenizer = CLIPTokenizer.from_pretrained(sd_id, subfolder="tokenizer")
