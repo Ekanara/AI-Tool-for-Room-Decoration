@@ -3,7 +3,6 @@ from diffusers.models.unet_2d_condition import UNet2DConditionModel
 from typing import Any, Dict, Optional, Union
 import torch
 import numpy as np
-from src.freeU.free_lunch_utils import Fourier_filter
 
 
 class MyUNet2DConditionModel(UNet2DConditionModel):

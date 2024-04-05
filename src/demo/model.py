@@ -14,6 +14,7 @@ import torch.nn.functional as F
 from basicsr.utils import img2tensor
 
 
+
 NUM_DDIM_STEPS = 50
 SIZES = {
     0: 4,
@@ -29,6 +30,7 @@ class InteriorModels():
         self.precision = torch.float16
         self.editor = InteriorPipeline(sd_id=pretrained_model_path, NUM_DDIM_STEPS=NUM_DDIM_STEPS,
                                        precision=self.precision, ip_scale=self.ip_scale)
+
         self.up_ft_index = [1, 2]  # fixed in gradio demo
         self.up_scale = 2  # fixed in gradio demo
         self.device = 'cuda'  # fixed in gradio demo

@@ -170,31 +170,30 @@ def create_demo_generate(runner):
                     container=False,
                 )
                 with gr.Box():
-                    guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=7.5, minimum=1, maximum=10,
+                    guidance_scale = gr.Slider(label="Classifier guidance strength", value=3.5, minimum=0, maximum=10,
                                                step=0.1)
                     """
                     energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=0.5, minimum=0, maximum=10,
                                               step=0.1)
                     """
                     max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
-                    #with gr.Accordion('Advanced options', open=False):
-                    """
-                    seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
-                    SDE_strength = gr.Slider(
-                        label="Flexibility strength",
-                        minimum=0,
-                        maximum=1,
-                        step=0.1,
-                        value=0.4,
-                        interactive=True)
-                    ip_scale = gr.Slider(
-                        label="Image prompt scale",
-                        minimum=0,
-                        maximum=1,
-                        step=0.1,
-                        value=0.1,
-                        interactive=True)
-                    """
+                    with gr.Accordion('Advanced options', open=False):
+                        #seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
+                        SDE_strength = gr.Slider(
+                            label="Flexibility strength",
+                            minimum=0,
+                            maximum=1,
+                            step=0.1,
+                            value=0.4,
+                            interactive=True)
+                        ip_scale = gr.Slider(
+                            label="Image prompt scale",
+                            minimum=0,
+                            maximum=1,
+                            step=0.1,
+                            value=0.1,
+                            interactive=True)
+
             with gr.Column():
                 with gr.Box():
                     gr.Markdown("# OUTPUT")

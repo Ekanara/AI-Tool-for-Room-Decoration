@@ -614,21 +614,21 @@ class CrossAttnUpBlock2D(nn.Module):
             res_hidden_states_tuple = res_hidden_states_tuple[:-1]
 
             # # --------------- FreeU code -----------------------
-            # if save_kv == False:
-            #     self.b1 = 1.1
-            #     self.b2 = 1.2
-            #     self.s1 = 0.6
-            #     self.s2 = 0.4
-            #     # Only operate on the first two stages
-            #     hidden_states, res_hidden_states = apply_freeu(
-            #             self.resolution_idx,
-            #             hidden_states,
-            #             res_hidden_states,
-            #             s1=self.s1,
-            #             s2=self.s2,
-            #             b1=self.b1,
-            #             b2=self.b2,
-            #         )
+            if save_kv == False:
+                 self.b1 = 1.5
+                 self.b2 = 1.6
+                 self.s1 = 0.9
+                 self.s2 = 0.2
+                 # Only operate on the first two stages
+                 hidden_states, res_hidden_states = apply_freeu(
+                         self.resolution_idx,
+                         hidden_states,
+                         res_hidden_states,
+                         s1=self.s1,
+                         s2=self.s2,
+                         b1=self.b1,
+                         b2=self.b2,
+                     )
             # # ---------------------------------------------------------
 
             hidden_states = torch.cat([hidden_states, res_hidden_states], dim=1)
@@ -715,13 +715,30 @@ class UpBlock2D(nn.Module):
 
         self.gradient_checkpointing = False
 
-    def forward(self, hidden_states, res_hidden_states_tuple, temb=None, upsample_size=None):
+    def forward(self, hidden_states, res_hidden_states_tuple, temb=None, upsample_size=None, save_kv=True):
         for resnet in self.resnets:
             # pop res hidden states
             res_hidden_states = res_hidden_states_tuple[-1]
             res_hidden_states_tuple = res_hidden_states_tuple[:-1]
             hidden_states = torch.cat([hidden_states, res_hidden_states], dim=1)
 
+            # # --------------- FreeU code -----------------------
+            if save_kv == False:
+                self.b1 = 1.5
+                self.b2 = 1.6
+                self.s1 = 0.9
+                self.s2 = 0.2
+                # Only operate on the first two stages
+                hidden_states, res_hidden_states = apply_freeu(
+                    self.resolution_idx,
+                    hidden_states,
+                    res_hidden_states,
+                    s1=self.s1,
+                    s2=self.s2,
+                    b1=self.b1,
+                    b2=self.b2,
+                )
+                # # ---------------------------------------------------------
             if self.training and self.gradient_checkpointing:
 
                 def create_custom_forward(module):
