@@ -169,6 +169,13 @@ def create_demo_generate(runner):
                     placeholder="Enter your prompt",
                     container=False,
                 )
+                negative_prompt = gr.Textbox(
+                    label="Enter your negative prompt",
+                    show_label=False,
+                    max_lines=1,
+                    placeholder=None,
+                    container=False,
+                )
                 with gr.Box():
                     guidance_scale = gr.Slider(label="Classifier guidance strength", value=3.5, minimum=0, maximum=10,
                                                step=0.1)
@@ -201,7 +208,7 @@ def create_demo_generate(runner):
                     with gr.Row():
                         run_button = gr.Button("Generate")
 
-        prompt.submit(fn=runner, inputs=[prompt, guidance_scale, max_resolution], outputs=[output])
+        prompt.submit(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, max_resolution], outputs=[output])
         run_button.click(fn=runner, inputs=[prompt, guidance_scale, max_resolution], outputs=[output])
         # Define the custom CSS style for the "Generate" button
     return demo
