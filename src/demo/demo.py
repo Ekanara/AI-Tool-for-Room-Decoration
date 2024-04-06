@@ -161,23 +161,21 @@ def create_demo_generate(runner):
     with gr.Blocks() as demo:
         gr.Markdown(DESCRIPTION)
         with gr.Row():
-            with gr.Box():
-                with gr.Column():
+            with gr.Column():
+                with gr.Row():
                     prompt = gr.Textbox(
-                        label="Enter your prompt",
-                        show_label=False,
+                        label="Prompt",
                         max_lines=1,
                         placeholder="Enter your prompt",
                         container=False,
                     )
-                with gr.Column():
+                with gr.Row():
                     negative_prompt = gr.Textbox(
-                        label="Enter your negative prompt",
-                        show_label=False,
+                        label="Negative Prompt",
                         max_lines=1,
-                        placeholder=None,
+                        placeholder="Enter your negative prompt",
                         container=False,
-                    )
+                )
                 with gr.Box():
                     guidance_scale = gr.Slider(label="Classifier guidance strength", value=3.5, minimum=0, maximum=10,
                                                step=0.1)
@@ -188,19 +186,33 @@ def create_demo_generate(runner):
                     max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
                     with gr.Accordion('Advanced options', open=False):
                         #seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
-                        SDE_strength = gr.Slider(
-                            label="Flexibility strength",
-                            minimum=0,
-                            maximum=1,
+                        b1 = gr.Slider(
+                            label="Backbone 1 (b1: detail 1)",
+                            minimum=0.8,
+                            maximum=1.8,
                             step=0.1,
-                            value=0.4,
+                            value=1.3,
                             interactive=True)
-                        ip_scale = gr.Slider(
-                            label="Image prompt scale",
+                        b2 = gr.Slider(
+                            label="Backbone 2 (b2: detail 2)",
+                            minimum=1,
+                            maximum=2,
+                            step=0.1,
+                            value=1.4,
+                            interactive=True)
+                        s1 = gr.Slider(
+                            label="Skip connection 1 (s1: contrast)",
                             minimum=0,
                             maximum=1,
                             step=0.1,
-                            value=0.1,
+                            value=0.5,
+                            interactive=True)
+                        s2 = gr.Slider(
+                            label="Skip connection 2 (s2: contrast)",
+                            minimum=0,
+                            maximum=1,
+                            step=0.1,
+                            value=0.2,
                             interactive=True)
 
             with gr.Column():
@@ -210,8 +222,8 @@ def create_demo_generate(runner):
                     with gr.Row():
                         run_button = gr.Button("Generate")
 
-        prompt.submit(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, max_resolution], outputs=[output])
-        run_button.click(fn=runner, inputs=[prompt, guidance_scale, max_resolution], outputs=[output])
+        prompt.submit(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, max_resolution, b1, b2, s1, s2], outputs=[output])
+        run_button.click(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, max_resolution, b1, b2, s1, s2], outputs=[output])
         # Define the custom CSS style for the "Generate" button
     return demo
 def create_demo_move(runner):

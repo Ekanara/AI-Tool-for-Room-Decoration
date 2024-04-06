@@ -13,7 +13,7 @@ import torch
 from src.freeU.free_lunch_utils import register_free_upblock2d, register_free_crossattn_upblock2d
 
 
-def run_generate_style_nofreeu(prompt, guidance_scale, max_resolution, negative_prompt):
+def run_generate_style_nofreeu(prompt, negative_prompt, guidance_scale, max_resolution ):
     repo_id = "stablediffusionapi/interiordesignsuperm"
     pipeline = DiffusionPipeline.from_pretrained(repo_id, torch_dtype=torch.float16)
     pipeline.to("cuda")
