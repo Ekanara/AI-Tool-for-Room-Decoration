@@ -5,7 +5,7 @@ from basicsr.utils import img2tensor
 import torch
 import torch.nn.functional as F
 
-def resize_numpy_image(image, max_resolution=512 * 512, resize_short_edge=None):
+def resize_numpy_image(image, max_resolution=768 * 768, resize_short_edge=None):
     h, w = image.shape[:2]
     w_org = image.shape[1]
     if resize_short_edge is not None:

@@ -1,6 +1,6 @@
 ""
 from src.demo.download import check_and_download, download_all
-#download_all()
+download_all()
 
 from src.demo.demo import create_demo_move, create_demo_appearance, create_demo_drag, create_demo_face_drag, create_demo_paste,create_demo_generate
 from src.demo.model import InteriorModels
