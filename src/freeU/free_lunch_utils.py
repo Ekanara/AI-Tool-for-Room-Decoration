@@ -100,7 +100,7 @@ def register_free_upblock2d(model, b1=1.5, b2=1.6, s1=0.9, s2=0.2):
                     res_hidden_states = Fourier_filter(res_hidden_states, threshold=1, scale=self.s1)
                 if hidden_states.shape[1] == 640:
                     hidden_states[:,:320] = hidden_states[:,:320] * self.b2
-                    res_hidden_states = Fourier_filter(res_hidden_states, threshold=1, scale=self.s2)
+                    res_hidden_states = Fourier_filter(res_hidden_states, threcshold=1, scale=self.s2)
                 # ---------------------------------------------------------
 
                 hidden_states = torch.cat([hidden_states, res_hidden_states], dim=1)

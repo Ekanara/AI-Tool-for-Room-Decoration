@@ -1,7 +1,7 @@
 # Adapted from : https://github.com/MC-E/DragonDiffusion/tree/master
 import requests
 from src.models.InteriorPipeline import InteriorPipeline
-from src.utils.utils import resize_numpy_image, split_ldm, process_move, process_drag_face, process_drag, \
+from src.utils.utils import resize_numpy_image, split_ldm, process_move, process_drag, \
     process_appearance, process_paste
 import io
 

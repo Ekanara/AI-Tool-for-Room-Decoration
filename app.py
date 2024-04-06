@@ -2,7 +2,7 @@
 from src.demo.download import check_and_download, download_all
 #download_all()
 
-from src.demo.demo import create_demo_move, create_demo_appearance, create_demo_drag, create_demo_face_drag, create_demo_paste,create_demo_generate
+from src.demo.demo import create_demo_move, create_demo_appearance, create_demo_drag, create_demo_face_drag, create_demo_paste,create_demo_generate, create_demo_generate_nofreeu
 from src.demo.model import InteriorModels
 from style_generate import run_generate_style
 from style_generate_nofreeu import run_generate_style_nofreeu
@@ -23,7 +23,7 @@ with gr.Blocks(css="css.style") as demo:
     gr.Markdown(DESCRIPTION)
     with gr.Tabs():
         with gr.TabItem('Generate Image (No FreeU)'):
-            create_demo_generate(run_generate_style_nofreeu)
+            create_demo_generate_nofreeu(run_generate_style_nofreeu)
         with gr.TabItem('Generate Image (With FreeU)'):
             create_demo_generate(run_generate_style)
         with gr.TabItem('Appearance Modulation'):
