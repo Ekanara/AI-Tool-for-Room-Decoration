@@ -161,21 +161,23 @@ def create_demo_generate(runner):
     with gr.Blocks() as demo:
         gr.Markdown(DESCRIPTION)
         with gr.Row():
-            with gr.Column():
-                prompt = gr.Textbox(
-                    label="Enter your prompt",
-                    show_label=False,
-                    max_lines=1,
-                    placeholder="Enter your prompt",
-                    container=False,
-                )
-                negative_prompt = gr.Textbox(
-                    label="Enter your negative prompt",
-                    show_label=False,
-                    max_lines=1,
-                    placeholder=None,
-                    container=False,
-                )
+            with gr.Box():
+                with gr.Column():
+                    prompt = gr.Textbox(
+                        label="Enter your prompt",
+                        show_label=False,
+                        max_lines=1,
+                        placeholder="Enter your prompt",
+                        container=False,
+                    )
+                with gr.Column():
+                    negative_prompt = gr.Textbox(
+                        label="Enter your negative prompt",
+                        show_label=False,
+                        max_lines=1,
+                        placeholder=None,
+                        container=False,
+                    )
                 with gr.Box():
                     guidance_scale = gr.Slider(label="Classifier guidance strength", value=3.5, minimum=0, maximum=10,
                                                step=0.1)
