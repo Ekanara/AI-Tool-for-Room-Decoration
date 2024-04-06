@@ -22,9 +22,9 @@ DESCRIPTION = '''
 with gr.Blocks(css="css.style") as demo:
     gr.Markdown(DESCRIPTION)
     with gr.Tabs():
-        with gr.TabItem('Generate Image (No FreeU'):
+        with gr.TabItem('Generate Image (No FreeU)'):
             create_demo_generate(run_generate_style_nofreeu)
-        with gr.TabItem('Generate Image (With FreeU'):
+        with gr.TabItem('Generate Image (With FreeU)'):
             create_demo_generate(run_generate_style)
         with gr.TabItem('Appearance Modulation'):
             create_demo_appearance(model.run_appearance)
