@@ -26,3 +26,5 @@ def run_generate_style(prompt, negative_prompt, guidance_scale, height, width, b
 
     #upscaled_image = image.resize((max_resolution, max_resolution), Image.LANCZOS)  # Resize with anti-aliasing
     return image
+
+

@@ -264,7 +264,7 @@ def create_demo_generate_nofreeu(runner):
                     """
                     height = gr.Slider(label="Height", value=720, minimum=428, maximum=1024, step=8)
 
-                    width = gr.Slider(label="width", value=1024, minimum=428, maximum=960, step=8)
+                    width = gr.Slider(label="Width", value=1024, minimum=428, maximum=960, step=8)
             with gr.Column():
                 with gr.Box():
                     gr.Markdown("# OUTPUT")
