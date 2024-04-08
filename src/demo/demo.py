@@ -183,7 +183,9 @@ def create_demo_generate(runner):
                     energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=0.5, minimum=0, maximum=10,
                                               step=0.1)
                     """
-                    max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
+                    width = gr.Slider(label="Resolution", value=720, minimum=428, maximum=1024, step=8)
+
+                    height = gr.Slider(label="Resolution", value=1024, minimum=428, maximum=960, step=8)
                     with gr.Accordion('Advanced options', open=False):
                         #seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
                         b1 = gr.Slider(
@@ -222,8 +224,8 @@ def create_demo_generate(runner):
                     with gr.Row():
                         run_button = gr.Button("Generate")
 
-        prompt.submit(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, max_resolution, b1, b2, s1, s2], outputs=[output])
-        run_button.click(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, max_resolution, b1, b2, s1, s2], outputs=[output])
+        prompt.submit(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, height, width, b1, b2, s1, s2], outputs=[output])
+        run_button.click(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, height, width, b1, b2, s1, s2], outputs=[output])
         # Define the custom CSS style for the "Generate" button
     return demo
 
@@ -260,7 +262,9 @@ def create_demo_generate_nofreeu(runner):
                     energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=0.5, minimum=0, maximum=10,
                                               step=0.1)
                     """
-                    max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
+                    width = gr.Slider(label="Resolution", value=720, minimum=428, maximum=1024, step=8)
+
+                    height = gr.Slider(label="Resolution", value=1024, minimum=428, maximum=960, step=8)
             with gr.Column():
                 with gr.Box():
                     gr.Markdown("# OUTPUT")
@@ -268,8 +272,8 @@ def create_demo_generate_nofreeu(runner):
                     with gr.Row():
                         run_button = gr.Button("Generate")
 
-        prompt.submit(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, max_resolution], outputs=[output])
-        run_button.click(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, max_resolution], outputs=[output])
+        prompt.submit(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, height, width], outputs=[output])
+        run_button.click(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, height, width], outputs=[output])
         # Define the custom CSS style for the "Generate" button
     return demo
 def create_demo_move(runner):
