@@ -183,9 +183,9 @@ def create_demo_generate(runner):
                     energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=0.5, minimum=0, maximum=10,
                                               step=0.1)
                     """
-                    width = gr.Slider(label="Resolution", value=720, minimum=428, maximum=1024, step=8)
+                    height = gr.Slider(label="Height", value=720, minimum=428, maximum=1024, step=8)
 
-                    height = gr.Slider(label="Resolution", value=1024, minimum=428, maximum=960, step=8)
+                    width = gr.Slider(label="width", value=1024, minimum=428, maximum=960, step=8)
                     with gr.Accordion('Advanced options', open=False):
                         #seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
                         b1 = gr.Slider(
@@ -262,9 +262,9 @@ def create_demo_generate_nofreeu(runner):
                     energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=0.5, minimum=0, maximum=10,
                                               step=0.1)
                     """
-                    width = gr.Slider(label="Resolution", value=720, minimum=428, maximum=1024, step=8)
+                    height = gr.Slider(label="Height", value=720, minimum=428, maximum=1024, step=8)
 
-                    height = gr.Slider(label="Resolution", value=1024, minimum=428, maximum=960, step=8)
+                    width = gr.Slider(label="width", value=1024, minimum=428, maximum=960, step=8)
             with gr.Column():
                 with gr.Box():
                     gr.Markdown("# OUTPUT")
