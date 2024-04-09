@@ -302,6 +302,3 @@ def freeU(prompt, b1, b2, s1, s2):
     register_free_upblock2d()
     register_upblock2d()
     return prompt, b1, b2, s1, s2
-
-
-

@@ -1,154 +1,35 @@
 import gradio as gr
 import numpy as np
 from PIL import Image
+import torch
+from torchmetrics.image import StructuralSimilarityIndexMeasure
+import torch.nn.functional as F
 from src.demo.utils import get_point, store_img, get_point_move, store_img_move, clear_points, upload_image_move, segment_with_points, segment_with_points_paste, fun_clear, paste_with_mask_and_offset
 
-# Examples
-examples_move = [
-    [
-        "examples/move/001.png",
-        'a photo of a cup',
-    ],
-    [
-        "examples/move/002.png",
-        'a photo of apples',
-    ],
-    [
-        "examples/move/003.png",
-        'a photo of a table',
-    ],
-    [
-        "examples/move/004.png",
-        'Astronauts play football on the moon',
-    ],
-    [
-        "examples/move/005.png",
-        'sun',
-    ],
-]
-examples_appearance = [
-    [
-        "examples/appearance/001_base.png",
-        "examples/appearance/001_replace.png",
-        'a photo of a cake',
-        'a photo of a cake',
-    ],
-    [
-        "examples/appearance/002_base.png",
-        "examples/appearance/002_replace.png",
-        'a photo of a doughnut',
-        'a photo of a doughnut',
-    ],
-    [
-        "examples/appearance/003_base.jpg",
-        "examples/appearance/003_replace.png",
-        'a photo of a Swiss roll',
-        'a photo of a Swiss roll',
-    ],
-    [
-        "examples/appearance/004_base.jpg",
-        "examples/appearance/004_replace.jpeg",
-        'a photo of a car',
-        'a photo of a car',
-    ],
-    [
-        "examples/appearance/005_base.jpeg",
-        "examples/appearance/005_replace.jpg",
-        'a photo of an ice-cream',
-        'a photo of an ice-cream',
-    ],
-]
-examples_drag = [
-    [
-        "examples/drag/001.png",
-        'a photo of a mountain',
-    ],
-    [
-        "examples/drag/003.png",
-        'oil painting',
-    ],
-    [
-        "examples/drag/004.png",
-        'oil painting',
-    ],
-    [
-        "examples/drag/005.png",
-        'a dog',
-    ],
-    [
-        "examples/drag/006.png",
-        'a cat',
-    ],
-]
-examples_face = [
-    [
-        "examples/face/001_base.png",
-        "examples/face/001_reference.png",
-    ],
-    [
-        "examples/face/002_base.png",
-        "examples/face/002_reference.png",
-    ],
-    [
-        "examples/face/003_base.png",
-        "examples/face/003_reference.png",
-    ],
-    [
-        "examples/face/004_base.png",
-        "examples/face/004_reference.png",
-    ],
-    [
-        "examples/face/005_base.png",
-        "examples/face/005_reference.png",
-    ],
-]
-examples_paste = [
-    [
-        "examples/move/001.png",
-        "examples/paste/001_replace.png",
-        'a photo of a croissant on the table',
-        'a photo of a croissant',
-        0,
-        0,
-        1
-    ],
-    [
-        "examples/paste/002_base.png",
-        "examples/paste/002_replace.png",
-        'a red car on road',
-        'a red car',
-        0,
-        110,
-        1
-    ],
-    [
-        "examples/paste/003_replace.jpg",
-        "examples/paste/003_base.jpg",
-        'a photo of a doughnut on the table',
-        'a photo of a doughnut',
-        0,
-        0,
-        1
-    ],
-    [
-        "examples/paste/004_base.png",
-        "examples/paste/004_replace.png",
-        'a burger in a plate',
-        'a burger',
-        0,
-        -150,
-        0.8
-    ],
-    [
-        "examples/paste/005_base.png",
-        "examples/paste/005_replace.png",
-        'a red apple on the hand',
-        'a red apple',
-        0,
-        -140,
-        0.8
-    ],
-]
+def calculate_ssim(original_image, modified_image):
+    print(f"original_image shape: {original_image.shape}")
+    if isinstance(modified_image, list):
+        # If modified_image is a list, assume it's a list of images
+        # and calculate the SSIM for each image
+        ssim_values = []
+        for image in modified_image:
+            print(f"modified_image shape: {image.shape}")
+            original_tensor = torch.from_numpy(np.array(original_image)).permute(2, 0, 1).unsqueeze(0).float()
+            modified_tensor = torch.from_numpy(np.array(image)).permute(2, 0, 1).unsqueeze(0).float()
+            modified_tensor = F.interpolate(modified_tensor, size=original_tensor.shape[-2:], mode='bilinear', align_corners=True)
+            ssim = StructuralSimilarityIndexMeasure(data_range=1.0)
+            ssim_value = ssim(original_tensor, modified_tensor)
+            ssim_values.append(f"{ssim_value:.4f}")
+        return ", ".join(ssim_values)
+    else:
+        # If modified_image is a single image
+        print(f"modified_image shape: {modified_image.shape}")
+        original_tensor = torch.from_numpy(np.array(original_image)).permute(2, 0, 1).unsqueeze(0).float()
+        modified_tensor = torch.from_numpy(np.array(modified_image)).permute(2, 0, 1).unsqueeze(0).float()
+        modified_tensor = F.interpolate(modified_tensor, size=original_tensor.shape[-2:], mode='bilinear', align_corners=True)
+        ssim = StructuralSimilarityIndexMeasure(data_range=1.0)
+        ssim_value = ssim(original_tensor, modified_tensor)
+        return f"{ssim_value:.4f}"
 
 def create_demo_generate(runner):
     DESCRIPTION = """
@@ -178,16 +59,16 @@ def create_demo_generate(runner):
                 )
                 with gr.Box():
                     guidance_scale = gr.Slider(label="Classifier guidance strength", value=3.5, minimum=0, maximum=10,
-                                               step=0.1)
+                                                step=0.1)
                     """
                     energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=0.5, minimum=0, maximum=10,
-                                              step=0.1)
+                                            step=0.1)
                     """
                     height = gr.Slider(label="Height", value=720, minimum=428, maximum=1024, step=8)
 
                     width = gr.Slider(label="width", value=1024, minimum=428, maximum=960, step=8)
                     with gr.Accordion('Advanced options', open=False):
-                        #seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
+                        seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
                         b1 = gr.Slider(
                             label="Backbone 1 (b1: detail 1)",
                             minimum=0.8,
@@ -220,13 +101,12 @@ def create_demo_generate(runner):
             with gr.Column():
                 with gr.Box():
                     gr.Markdown("# OUTPUT")
-                    output = gr.outputs.Image(type="pil").style(rounded=True)
+                    output = gr.Image(type="pil")
                     with gr.Row():
                         run_button = gr.Button("Generate")
 
         prompt.submit(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, height, width, b1, b2, s1, s2], outputs=[output])
         run_button.click(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, height, width, b1, b2, s1, s2], outputs=[output])
-        # Define the custom CSS style for the "Generate" button
     return demo
 
 def create_demo_generate_nofreeu(runner):
@@ -257,10 +137,10 @@ def create_demo_generate_nofreeu(runner):
                 )
                 with gr.Box():
                     guidance_scale = gr.Slider(label="Classifier guidance strength", value=3.5, minimum=0, maximum=10,
-                                               step=0.1)
+                                                step=0.1)
                     """
                     energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=0.5, minimum=0, maximum=10,
-                                              step=0.1)
+                                            step=0.1)
                     """
                     height = gr.Slider(label="Height", value=720, minimum=428, maximum=1024, step=8)
 
@@ -268,7 +148,7 @@ def create_demo_generate_nofreeu(runner):
             with gr.Column():
                 with gr.Box():
                     gr.Markdown("# OUTPUT")
-                    output = gr.outputs.Image(type="pil").style(rounded=True)
+                    output = gr.Image(type="pil")
                     with gr.Row():
                         run_button = gr.Button("Generate")
 
@@ -276,6 +156,7 @@ def create_demo_generate_nofreeu(runner):
         run_button.click(fn=runner, inputs=[prompt, negative_prompt, guidance_scale, height, width], outputs=[output])
         # Define the custom CSS style for the "Generate" button
     return demo
+
 def create_demo_move(runner):
     DESCRIPTION = """
     ## Object Moving & Resizing
@@ -374,7 +255,7 @@ def create_demo_move(runner):
                     im_w_mask_ref = gr.Image(label="Mask of reference region", interactive=True, type="numpy")
 
                     gr.Markdown("<h5><center>Results</center></h5>")
-                    output = gr.Gallery().style(grid=1, height='auto')
+                    output = gr.Gallery(columns=1, height='auto')
 
             img.select(
                 get_point_move,
@@ -391,15 +272,17 @@ def create_demo_move(runner):
                 [img_ref],
                 [original_image, im_w_mask_ref, mask_ref]
             )
-        with gr.Column():
-            gr.Markdown("Try some of the examples below ⬇️")
-            """
-            gr.Examples(
-                examples=examples_move,
-                inputs=[img_draw_box, prompt]
-            )
-            """
-        run_button.click(fn=runner, inputs=[original_image, mask, mask_ref, prompt, resize_scale, w_edit, w_content, w_contrast, w_inpaint, seed, selected_points, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
+            ssim_score = gr.Textbox(label="SSIM Score")
+        def on_run_button_click(original_image, *args):
+            output = runner(original_image, *args)
+            ssim_value = calculate_ssim(original_image, output)
+            return output, ssim_value
+            
+        run_button.click(
+            fn=on_run_button_click,
+            inputs=[original_image, mask, mask_ref, prompt, resize_scale, w_edit, w_content, w_contrast, w_inpaint, seed, selected_points, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale],
+            outputs=[output, ssim_score]
+        )
         clear_button.click(fn=fun_clear, inputs=[original_image, global_points, global_point_label, selected_points, mask_ref, mask, img_draw_box, img, im_w_mask_ref], outputs=[original_image, global_points, global_point_label, selected_points, mask_ref, mask, img_draw_box, img, im_w_mask_ref])
     return demo
 
@@ -425,10 +308,10 @@ def create_demo_appearance(runner):
                     gr.Markdown("# INPUT")
                     gr.Markdown("## 1. Upload image & Draw box to generate mask")
                     img_base = gr.Image(source='upload', label="Original image", interactive=True, type="numpy")
-                    img_replace = gr.Image(tool="upload", label="Reference image", interactive=True, type="numpy")
+                    img_replace = gr.Image(source="upload", label="Reference image", interactive=True, type="numpy")
 
                     gr.Markdown("## 2. Prompt")
-                    prompt = gr.Textbox(label="Prompt")
+                    prompt = gr.Textbox(label="Prompt of original image")
                     prompt_replace = gr.Textbox(label="Prompt of reference image")
 
                     with gr.Row():
@@ -478,7 +361,8 @@ def create_demo_appearance(runner):
                         mask_replace = gr.Image(tool="upload", label="Mask of reference object", interactive=False, type="numpy")
                     
                     gr.Markdown("<h5><center>Results</center></h5>")
-                    output = gr.Gallery().style(grid=1, height='auto')
+                    output = gr.Gallery(columns=1, height='auto')
+                    ssim_score = gr.Textbox(label="SSIM Score")
 
         img_base.select(
             segment_with_points, 
@@ -490,82 +374,15 @@ def create_demo_appearance(runner):
             inputs=[img_replace, original_image_replace, global_points_replace, global_point_label_replace], 
             outputs=[img_replace, original_image_replace, mask_replace, global_points_replace, global_point_label_replace]
         )
-        with gr.Column():     
-            gr.Markdown("Try some of the examples below ⬇️")
-            """
-            gr.Examples(
-                examples=examples_appearance,
-                inputs=[img_base, img_replace, prompt, prompt_replace]
-                )
-            """
+
+        def on_run_button_click(original_image_base, *args):
+            output = runner(original_image_base, *args)
+            ssim_value = calculate_ssim(original_image_base, output)
+            return output, ssim_value
+            
         clear_button.click(fn=fun_clear, inputs=[original_image_base, original_image_replace, global_points_base, global_points_replace, global_point_label_base, global_point_label_replace, img_base, img_replace, mask_base, mask_replace], outputs=[original_image_base, original_image_replace, global_points_base, global_points_replace, global_point_label_base, global_point_label_replace, img_base, img_replace, mask_base, mask_replace])
-        run_button.click(fn=runner, inputs=[original_image_base, mask_base, original_image_replace, mask_replace, prompt, prompt_replace, w_edit, w_content, seed, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
-    return demo
 
-def create_demo_face_drag(runner):
-    DESCRIPTION = """
-    ## Face Modulation
-    Usage:
-    - Upload a source face and a reference face.
-    - Click the `Edit` button to start editing."""
-
-    with gr.Blocks() as demo:
-        with gr.Row():
-            gr.Markdown(DESCRIPTION)
-        with gr.Column(scale=2):
-            with gr.Row():
-                img_org = gr.Image(source='upload', label="Original Face", interactive=True, type="numpy")
-                img_ref = gr.Image(source='upload', label="Reference Face", interactive=True, type="numpy")
-            with gr.Row():
-                run_button = gr.Button("Edit")
-            with gr.Row():
-                with gr.Column(scale=2):
-                    with gr.Box():
-                        seed = gr.Slider(label="Seed", value=42, minimum=0, maximum=10000, step=1, randomize=False)
-                        guidance_scale = gr.Slider(label="Classifier-free guidance strength", value=4, minimum=1, maximum=10, step=0.1)
-                        energy_scale = gr.Slider(label="Classifier guidance strength (x1e3)", value=3, minimum=0, maximum=10, step=0.1)
-                        max_resolution = gr.Slider(label="Resolution", value=768, minimum=428, maximum=1024, step=1)
-                        with gr.Accordion('Advanced options', open=False):
-                            w_edit = gr.Slider(
-                                        label="Weight of moving strength",
-                                        minimum=0,
-                                        maximum=20,
-                                        step=0.1,
-                                        value=12,
-                                        interactive=True)
-                            w_inpaint = gr.Slider(
-                                        label="Weight of inpainting strength",
-                                        minimum=0,
-                                        maximum=10,
-                                        step=0.1,
-                                        value=0.4,
-                                        interactive=True)
-                            SDE_strength = gr.Slider(
-                                        label="Flexibility strength",
-                                        minimum=0,
-                                        maximum=1,
-                                        step=0.1,
-                                        value=0.2,
-                                        interactive=True)
-                            ip_scale = gr.Slider(
-                                        label="Image prompt scale",
-                                        minimum=0,
-                                        maximum=1,
-                                        step=0.01,
-                                        value=0.05,
-                                        interactive=True)
-                with gr.Column(scale=2):
-                    gr.Markdown("<h5><center>Results</center></h5>")
-                    output = gr.Gallery().style(grid=3, height='auto')
-            with gr.Column():
-                gr.Markdown("Try some of the examples below ⬇️")
-                """
-                gr.Examples(
-                    examples=examples_face,
-                    inputs=[img_org, img_ref]
-                    )
-                """
-        run_button.click(fn=runner, inputs=[img_org, img_ref, w_edit, w_inpaint, seed, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
+        run_button.click(fn=on_run_button_click, inputs=[original_image_base, mask_base, original_image_replace, mask_replace, prompt, prompt_replace, w_edit, w_content, seed, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output, ssim_score])
     return demo
 
 def create_demo_drag(runner):
@@ -646,16 +463,18 @@ def create_demo_drag(runner):
                                         interactive=True)
                 with gr.Column(scale=2):
                     gr.Markdown("<h5><center>Results</center></h5>")
-                    output = gr.Gallery().style(grid=1, height='auto')
-            with gr.Column():
-                gr.Markdown("Try some of the examples below ⬇️")
-                """
-                gr.Examples(
-                    examples=examples_drag,
-                    inputs=[img_m, prompt]
-                )
-                """
-        run_button.click(fn=runner, inputs=[original_image, mask, prompt, w_edit, w_content, w_inpaint, seed, selected_points, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
+                    output = gr.Gallery(columns=1, height='auto')
+                    ssim_score = gr.Textbox(label="SSIM Score")
+
+        def on_run_button_click(original_image, *args):
+            output = runner(original_image, *args)
+            ssim_value = calculate_ssim(original_image, output)
+            return output, ssim_value
+        run_button.click(
+            fn=on_run_button_click,
+            inputs=[original_image, mask, prompt, w_edit, w_content, w_inpaint, seed, selected_points, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale], 
+            outputs=[output, ssim_score]
+        )
         clear_button.click(fn=clear_points, inputs=[img_m], outputs=[selected_points, img])
     return demo
 
@@ -755,7 +574,9 @@ def create_demo_paste(runner):
                         gr.Markdown("# OUTPUT")
                         mask_base_show = gr.Image(source='upload', label="Mask of editing object", interactive=True, type="numpy")
                         gr.Markdown("<h5><center>Results</center></h5>")
-                        output = gr.Gallery().style(grid=1, height='auto')
+                        output = gr.Gallery(columns=1, height='auto')
+                        ssim_score = gr.Textbox(label="SSIM Score")
+
         img_replace.select(
             segment_with_points_paste, 
             inputs=[img_replace, original_image, global_points, global_point_label, img_base, dx, dy, resize_scale], 
@@ -781,16 +602,17 @@ def create_demo_paste(runner):
             inputs = [img_replace, img_base, mask_base, dx, dy, resize_scale],
             outputs =  mask_base_show
         )
-        with gr.Column():
-            gr.Markdown("Try some of the examples below ⬇️")
-            """
-            gr.Examples(
-                examples=examples_paste,
-                inputs=[img_base, img_replace, prompt, prompt_replace, dx, dy, resize_scale]
-            )
-            """
+        def on_run_button_click(img_base, *args):
+            output = runner(img_base, *args)
+            ssim_value = calculate_ssim(img_base, output)
+            return output, ssim_value
+
         clear_button.click(fn=fun_clear, inputs=[original_image, global_points, global_point_label, img_replace, mask_base, img_base], outputs=[original_image, global_points, global_point_label, img_replace, mask_base, img_base])
-        run_button.click(fn=runner, inputs=[img_base, mask_base, original_image, prompt, prompt_replace, w_edit, w_content, seed, guidance_scale, energy_scale, dx, dy, resize_scale, max_resolution, SDE_strength, ip_scale], outputs=[output])
+        run_button.click(
+            fn=on_run_button_click,
+            inputs=[img_base, mask_base, original_image, prompt, prompt_replace, w_edit, w_content, seed, guidance_scale, energy_scale, dx, dy, resize_scale, max_resolution, SDE_strength, ip_scale],
+            outputs=[output, ssim_score]
+        )
     return demo
 
 """

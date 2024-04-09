@@ -58,13 +58,12 @@ def download_all():
     subprocess.run(shlex.split('wget https://huggingface.co/datasets/Ekanari/AIToolForRoomDecoration/resolve/main/models/ip_sd15_64.bin -O models/ip_sd15_64.bin'))
 
 def check_and_download():
-   """Checks if the 'examples' and 'models' directories exist and are not empty,
-      and calls the download_all() function if either condition is not met.
-   """
-   main_project_dir = os.getcwd()  # Get the current working directory
+    """Checks if the 'examples' and 'models' directories exist and are not empty,
+        and calls the download_all() function if either condition is not met.
+    """
+    main_project_dir = os.getcwd()  # Get the current working directory
 
-   for directory in ["examples", "models"]:
-       directory_path = os.path.join(main_project_dir, directory)
-
-       if not os.path.exists(directory_path) or os.listdir(directory_path):
-           download_all()
+    for directory in ["models"]:
+        directory_path = os.path.join(main_project_dir, directory)
+        if (not os.path.exists(directory_path)) and (os.listdir(directory_path)):
+            download_all()
