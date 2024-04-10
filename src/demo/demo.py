@@ -8,28 +8,32 @@ from src.demo.utils import get_point, store_img, get_point_move, store_img_move,
 
 def calculate_ssim(original_image, modified_image):
     print(f"original_image shape: {original_image.shape}")
-    if isinstance(modified_image, list):
-        # If modified_image is a list, assume it's a list of images
-        # and calculate the SSIM for each image
-        ssim_values = []
-        for image in modified_image:
-            print(f"modified_image shape: {image.shape}")
-            original_tensor = torch.from_numpy(np.array(original_image)).permute(2, 0, 1).unsqueeze(0).float()
-            modified_tensor = torch.from_numpy(np.array(image)).permute(2, 0, 1).unsqueeze(0).float()
-            modified_tensor = F.interpolate(modified_tensor, size=original_tensor.shape[-2:], mode='bilinear', align_corners=True)
-            ssim = StructuralSimilarityIndexMeasure(data_range=1.0)
-            ssim_value = ssim(original_tensor, modified_tensor)
-            ssim_values.append(f"{ssim_value:.4f}")
-        return ", ".join(ssim_values)
-    else:
-        # If modified_image is a single image
-        print(f"modified_image shape: {modified_image.shape}")
+    # If modified_image is a list, assume it's a list of images
+    # and calculate the SSIM for each image
+    if not isinstance(modified_image, list):
+        return _extracted_from_calculate_ssim_18(modified_image, original_image)
+    ssim_values = []
+    for image in modified_image:
+        print(f"modified_image shape: {image.shape}")
         original_tensor = torch.from_numpy(np.array(original_image)).permute(2, 0, 1).unsqueeze(0).float()
-        modified_tensor = torch.from_numpy(np.array(modified_image)).permute(2, 0, 1).unsqueeze(0).float()
+        modified_tensor = torch.from_numpy(np.array(image)).permute(2, 0, 1).unsqueeze(0).float()
         modified_tensor = F.interpolate(modified_tensor, size=original_tensor.shape[-2:], mode='bilinear', align_corners=True)
         ssim = StructuralSimilarityIndexMeasure(data_range=1.0)
         ssim_value = ssim(original_tensor, modified_tensor)
-        return f"{ssim_value:.4f}"
+        ssim_values.append(f"{ssim_value:.4f}")
+    return ", ".join(ssim_values)
+
+
+# TODO Rename this here and in `calculate_ssim`
+def _extracted_from_calculate_ssim_18(modified_image, original_image):
+    # If modified_image is a single image
+    print(f"modified_image shape: {modified_image.shape}")
+    original_tensor = torch.from_numpy(np.array(original_image)).permute(2, 0, 1).unsqueeze(0).float()
+    modified_tensor = torch.from_numpy(np.array(modified_image)).permute(2, 0, 1).unsqueeze(0).float()
+    modified_tensor = F.interpolate(modified_tensor, size=original_tensor.shape[-2:], mode='bilinear', align_corners=True)
+    ssim = StructuralSimilarityIndexMeasure(data_range=1.0)
+    ssim_value = ssim(original_tensor, modified_tensor)
+    return f"{ssim_value:.4f}"
 
 def create_demo_generate(runner):
     DESCRIPTION = """
