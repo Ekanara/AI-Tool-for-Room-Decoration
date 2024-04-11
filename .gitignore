@@ -1,0 +1,10 @@
+
+/__pycache__
+models/efficient_sam_vits.pt
+models/ip_sd15_64.bin
+/sam/efficient_sam/__pycache__
+/src/demo/__pycache__
+/src/freeU/__pycache__
+/src/models/__pycache__
+/src/unet/__pycache__
+/src/utils/__pycache__
