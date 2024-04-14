@@ -37,6 +37,7 @@ class InteriorPipeline:
                                                                         safety_checker=None,
                                                                         feature_extractor=None, ).to('cuda',
                                                                                                      dtype=precision)
+
         onestep_pipe.estimator.enable_xformers_memory_efficient_attention()
         gc.collect()
         onestep_pipe = onestep_pipe.to("cuda")
