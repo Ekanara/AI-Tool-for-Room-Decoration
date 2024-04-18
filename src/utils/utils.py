@@ -4,9 +4,8 @@ import cv2
 from basicsr.utils import img2tensor
 import torch
 import torch.nn.functional as F
-import torchvision
 
-def resize_numpy_image(image, max_resolution=512 * 512, resize_short_edge=None):
+def resize_numpy_image(image, max_resolution=768 * 768, resize_short_edge=None):
     h, w = image.shape[:2]
     w_org = image.shape[1]
     if resize_short_edge is not None:
@@ -27,6 +26,8 @@ def split_ldm(ldm):
         x.append(p[0])
         y.append(p[1])
     return x,y
+
+
 
 def process_move(path_mask, h, w, dx, dy, scale, input_scale, resize_scale, up_scale, up_ft_index, w_edit, w_content, w_contrast, w_inpaint,  precision, path_mask_ref=None):
     dx, dy = dx*input_scale, dy*input_scale
@@ -94,38 +95,7 @@ def process_move(path_mask, h, w, dx, dy, scale, input_scale, resize_scale, up_s
         "w_inpaint":w_inpaint, 
     }
 
-def process_drag_face(h, w, x, y, x_cur, y_cur, scale, input_scale, up_scale, up_ft_index, w_edit, w_inpaint, precision):
-    for i in range(len(x)):
-        x[i] = int(x[i]*input_scale)
-        y[i] = int(y[i]*input_scale)
-        x_cur[i] = int(x_cur[i]*input_scale)
-        y_cur[i] = int(y_cur[i]*input_scale)
 
-    mask_tar = []
-    for p_idx in range(len(x)):
-        mask_i = torch.zeros(int(h//scale), int(w//scale)).cuda()
-        y_clip = int(np.clip(y[p_idx]//scale, 1, mask_i.shape[0]-2))
-        x_clip = int(np.clip(x[p_idx]//scale, 1, mask_i.shape[1]-2))
-        mask_i[y_clip-1:y_clip+2,x_clip-1:x_clip+2]=1
-        mask_i = mask_i>0.5
-        mask_tar.append(mask_i)
-    mask_cur = []
-    for p_idx in range(len(x_cur)):
-        mask_i = torch.zeros(int(h//scale), int(w//scale)).cuda()
-        y_clip = int(np.clip(y_cur[p_idx]//scale, 1, mask_i.shape[0]-2))
-        x_clip = int(np.clip(x_cur[p_idx]//scale, 1, mask_i.shape[1]-2))
-        mask_i[y_clip-1:y_clip+2,x_clip-1:x_clip+2]=1
-        mask_i=mask_i>0.5
-        mask_cur.append(mask_i)
-
-    return {
-        "mask_tar":mask_tar,
-        "mask_cur":mask_cur,
-        "up_scale":up_scale,
-        "up_ft_index":up_ft_index,
-        "w_edit": w_edit,
-        "w_inpaint": w_inpaint,
-    }
 
 def process_drag(path_mask, h, w, x, y, x_cur, y_cur, scale, input_scale, up_scale, up_ft_index, w_edit, w_inpaint, w_content, precision, latent_in):
     if isinstance(path_mask, str):
@@ -247,7 +217,3 @@ def process_paste(path_mask, h, w, dx, dy, scale, input_scale, up_scale, up_ft_i
         "w_content":w_content,
     }
 
-def generate_style(self, color_tone, style, room):
-    # Create a prompt based on user choices
-    prompt = f"A {color_tone} {style} {room} interior design"
-    return prompt

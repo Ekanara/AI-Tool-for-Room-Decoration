@@ -10,6 +10,8 @@ from PIL import Image
 
 from sam.efficient_sam.build_efficient_sam import build_efficient_sam_vits
 from src.utils.utils import resize_numpy_image
+from src.freeU.free_lunch_utils import register_free_upblock2d, register_upblock2d
+
 
 sam = build_efficient_sam_vits()
 def show_point_or_box(image, global_points):
@@ -296,4 +298,7 @@ def mask_image(image, mask, color=[255,0,0], alpha=0.5, max_resolution=None):
                         cv2.CHAIN_APPROX_SIMPLE)[-2:]
     return out
 
-
+def freeU(prompt, b1, b2, s1, s2):
+    register_free_upblock2d()
+    register_upblock2d()
+    return prompt, b1, b2, s1, s2

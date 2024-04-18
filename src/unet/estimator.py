@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, Union
 import torch
 import numpy as np
 
+
 class MyUNet2DConditionModel(UNet2DConditionModel):
     def forward(
         self,

@@ -1,8 +1,9 @@
 # Adapted from : https://github.com/MC-E/DragonDiffusion/tree/master
-
+import requests
 from src.models.InteriorPipeline import InteriorPipeline
-from src.utils.utils import resize_numpy_image, split_ldm, process_move, process_drag_face, process_drag, \
+from src.utils.utils import resize_numpy_image, split_ldm, process_move, process_drag, \
     process_appearance, process_paste
+import io
 
 import torch
 from pytorch_lightning import seed_everything
@@ -11,6 +12,7 @@ from torchvision.transforms import PILToTensor
 import numpy as np
 import torch.nn.functional as F
 from basicsr.utils import img2tensor
+
 
 
 NUM_DDIM_STEPS = 50
@@ -28,41 +30,10 @@ class InteriorModels():
         self.precision = torch.float16
         self.editor = InteriorPipeline(sd_id=pretrained_model_path, NUM_DDIM_STEPS=NUM_DDIM_STEPS,
                                        precision=self.precision, ip_scale=self.ip_scale)
+
         self.up_ft_index = [1, 2]  # fixed in gradio demo
         self.up_scale = 2  # fixed in gradio demo
         self.device = 'cuda'  # fixed in gradio demo
-        self.color_tones = ['warm', 'cool', 'blue', 'green']
-        self.styles = ['wooden', 'modern', 'vintage', 'minimalist']
-        self.rooms = ['bedroom', 'living room', 'kitchen', 'bathroom']
-        self.current_color_tone = 'warm'
-        self.current_style = 'modern'
-        self.current_room = 'living room'
-
-    def run_generate_style(self, seed, text_embedding, prompt, energy_scale, ip_scale=None, color_tone=None, style=None,
-                           room=None):
-        seed_everything(seed)
-        energy_scale = energy_scale * 1e3
-
-        # Update color_tone, style, and room if provided
-        if color_tone is not None:
-            self.current_color_tone = color_tone
-        if style is not None:
-            self.current_style = style
-        if room is not None:
-            self.current_room = room
-
-        # Generate prompt based on the current choices
-        prompt = self.editor.generate_prompt(self.current_color_tone, self.current_style, self.current_room)
-
-        if ip_scale is not None and ip_scale != self.ip_scale:
-            self.ip_scale = ip_scale
-            self.editor.load_adapter(self.editor.ip_id, self.ip_scale)
-
-        # Assuming 'self.editor.pipe.generate_image' takes 'prompt', 'text_embedding', and 'energy_scale' as arguments
-        img = self.editor.pipe.generate_image(prompt, text_embedding, energy_scale)
-
-        torch.cuda.empty_cache()
-        return img
 
 
     def run_move(self, original_image, mask, mask_ref, prompt, resize_scale, w_edit, w_content, w_contrast, w_inpaint,

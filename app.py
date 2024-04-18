@@ -1,30 +1,30 @@
-""
-from src.demo.download import check_and_download, download_all
-# check_and_download()
-#download_all()
+# from src.demo.download import check_and_download, download_all
+# download_all()
 
-from src.demo.demo import create_demo_move, create_demo_appearance, create_demo_drag, create_demo_face_drag, create_demo_paste,create_demo_generate
+from src.demo.demo import create_demo_move, create_demo_appearance, create_demo_drag, create_demo_paste, create_demo_generate, create_demo_generate_nofreeu
 from src.demo.model import InteriorModels
 from style_generate import run_generate_style
+from style_generate_nofreeu import run_generate_style_nofreeu
 
-#import cv2
 import gradio as gr
 
-# main demo
 pretrained_model_path = "runwayml/stable-diffusion-v1-5"
 model = InteriorModels(pretrained_model_path=pretrained_model_path)
 
 DESCRIPTION = '''
 <div style="text-align: center; font-size: 30px;">
-    <p>😭😭<a href="https://github.com/Ekanara/AI-Tool-for-Room-Decoration">AI-Tool-for-Room-Decoration</a>😭😭</p>
+    <h1>😭😭<a href="https://github.com/Ekanara/AI-Tool-for-Room-Decoration">AI Tool for Room Decoration</a>😭😭</h1>
+    <h2><a href="https://github.com/Ekanara/AI-Tool-for-Room-Decoration">Github</a></h2>
 </div>
 '''
 #with gr.Blocks(css=".gradio-container {background: url('file=background.png'); background-size: cover}") as demo:
 with gr.Blocks(css="css.style") as demo:
     gr.Markdown(DESCRIPTION)
     with gr.Tabs():
-        with gr.TabItem('Generate Image'):
-          create_demo_generate(run_generate_style)
+        with gr.TabItem('Generate Image (No FreeU)'):
+            create_demo_generate_nofreeu(run_generate_style_nofreeu)
+        with gr.TabItem('Generate Image (With FreeU)'):
+            create_demo_generate(run_generate_style)
         with gr.TabItem('Appearance Modulation'):
             create_demo_appearance(model.run_appearance)
         with gr.TabItem('Object Moving & Resizing'):
