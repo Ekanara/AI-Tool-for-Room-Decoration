@@ -13,7 +13,7 @@ model = InteriorModels(pretrained_model_path=pretrained_model_path)
 
 DESCRIPTION = '''
 <div style="text-align: center; font-size: 30px;">
-    <h1>😭😭<a href="https://github.com/Ekanara/AI-Tool-for-Room-Decoration">AI Tool for Room Decoration</a>😭😭</h1>
+    <h1><a href="https://github.com/Ekanara/AI-Tool-for-Room-Decoration">AI Tool for Room Decoration</a></h1>
     <h2><a href="https://github.com/Ekanara/AI-Tool-for-Room-Decoration">Github</a></h2>
 </div>
 '''
@@ -21,16 +21,16 @@ DESCRIPTION = '''
 with gr.Blocks(css="css.style") as demo:
     gr.Markdown(DESCRIPTION)
     with gr.Tabs():
-        with gr.TabItem('Generate Image (No FreeU)'):
-            create_demo_generate_nofreeu(run_generate_style_nofreeu)
+        #with gr.TabItem('Generate Image (No FreeU)'):
+         #create_demo_generate_nofreeu(run_generate_style_nofreeu)
         with gr.TabItem('Generate Image (With FreeU)'):
             create_demo_generate(run_generate_style)
         with gr.TabItem('Appearance Modulation'):
             create_demo_appearance(model.run_appearance)
         with gr.TabItem('Object Moving & Resizing'):
             create_demo_move(model.run_move)
-        with gr.TabItem('Content Dragging'):
-            create_demo_drag(model.run_drag)
+        #with gr.TabItem('Content Dragging'):
+            #create_demo_drag(model.run_drag)
         with gr.TabItem('Object Pasting'):
             create_demo_paste(model.run_paste)
 
