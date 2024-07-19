@@ -5,7 +5,7 @@ import torch
 from torchmetrics.image import StructuralSimilarityIndexMeasure
 import torch.nn.functional as F
 from src.demo.utils import get_point, store_img, get_point_move, store_img_move, clear_points, upload_image_move, segment_with_points, segment_with_points_paste, fun_clear, paste_with_mask_and_offset
-
+"""
 def calculate_ssim(original_image, modified_image):
     print(f"original_image shape: {original_image.shape}")
     # If modified_image is a list, assume it's a list of images
@@ -34,7 +34,7 @@ def _extracted_from_calculate_ssim_18(modified_image, original_image):
     ssim = StructuralSimilarityIndexMeasure(data_range=1.0)
     ssim_value = ssim(original_tensor, modified_tensor)
     return f"{ssim_value:.4f}"
-
+"""
 def create_demo_generate(runner):
     DESCRIPTION = """
         ## Image Generation
@@ -276,12 +276,13 @@ def create_demo_move(runner):
                 [img_ref],
                 [original_image, im_w_mask_ref, mask_ref]
             )
+
             ssim_score = gr.Textbox(label="SSIM Score")
         def on_run_button_click(original_image, *args):
             output = runner(original_image, *args)
-            ssim_value = calculate_ssim(original_image, output)
-            return output, ssim_value
-            
+            #ssim_value = calculate_ssim(original_image, output)
+            return output
+
         run_button.click(
             fn=on_run_button_click,
             inputs=[original_image, mask, mask_ref, prompt, resize_scale, w_edit, w_content, w_contrast, w_inpaint, seed, selected_points, guidance_scale, energy_scale, max_resolution, SDE_strength, ip_scale],

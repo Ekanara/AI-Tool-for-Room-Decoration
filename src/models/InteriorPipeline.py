@@ -11,22 +11,16 @@ from transformers import CLIPTextModel, CLIPTokenizer
 from src.utils.inversion import DDIMInversion
 from src.unet.attention_processor import IPAttnProcessor, AttnProcessor, Resampler
 from transformers import CLIPVisionModelWithProjection, CLIPImageProcessor
-from src.models.StableDiffusionPipeline import DiffusionPipeline
-from src.freeU.free_lunch_utils import register_free_upblock2d, register_free_crossattn_upblock2d
-
-
+from src.models.Sampler import Sampler
 
 # Adapted from DragonDiffusion
 class InteriorPipeline:
-    def __init__(self, sd_id='stablediffusionapi/interiordesignsuperm', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=50,
+    def __init__(self, sd_id='stablediffusionapi/interiordesignsuperm', ip_id='models/ip_sd15_64.bin', NUM_DDIM_STEPS=45,
                  precision=torch.float32, ip_scale=0):
         unet = InteriorUNet2DConditionModel.from_pretrained(sd_id, subfolder="unet", torch_dtype=precision)
-        #unet.enable_freeu(b1=1.5, b2=1.6, s1=0.9, s2=0.2)
-        #register_free_upblock2d(unet, b1=1.5, b2=1.6, s1=0.9, s2=0.2)
-        #register_free_crossattn_upblock2d(unet, b1=1.5, b2=1.6, s1=0.9, s2=0.2)
         tokenizer = CLIPTokenizer.from_pretrained(sd_id, subfolder="tokenizer")
         text_encoder = CLIPTextModel.from_pretrained(sd_id, subfolder="text_encoder", torch_dtype=precision)
-        onestep_pipe = DiffusionPipeline.from_pretrained(sd_id, unet=unet, safety_checker=None, feature_extractor=None,
+        onestep_pipe = Sampler.from_pretrained(sd_id, unet=unet, safety_checker=None, feature_extractor=None,
                                                tokenizer=tokenizer, text_encoder=text_encoder, dtype=precision)
         onestep_pipe.vae = AutoencoderKL.from_pretrained(sd_id, subfolder="vae", torch_dtype=precision)
         onestep_pipe.scheduler = DDIMScheduler.from_pretrained(sd_id, subfolder="scheduler")
@@ -37,7 +31,6 @@ class InteriorPipeline:
                                                                         safety_checker=None,
                                                                         feature_extractor=None, ).to('cuda',
                                                                                                      dtype=precision)
-
         onestep_pipe.estimator.enable_xformers_memory_efficient_attention()
         gc.collect()
         onestep_pipe = onestep_pipe.to("cuda")
