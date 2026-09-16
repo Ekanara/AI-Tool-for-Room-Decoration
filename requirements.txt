@@ -1,5 +1,5 @@
 basicsr
-torch==2.0.1
+torch==2.8.0
 diffusers==0.18.0
 xformers==0.0.21
 einops
