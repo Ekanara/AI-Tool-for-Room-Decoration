@@ -35,53 +35,28 @@ Every edit also reports an **SSIM score** against the original photo, so you can
 
 ## Results
 
-**Appearance modulation**: restyle the bed using a reference photo.
-
-<table>
-  <tr>
-    <th>Original room</th>
-    <th>Reference</th>
-    <th>Result</th>
-  </tr>
-  <tr>
-    <td><img src="DragonImage/AM1/Org1.jpg" width="260" alt="Original bedroom"></td>
-    <td><img src="DragonImage/AM1/Ref%20(1).jpg" width="260" alt="Reference bedroom"></td>
-    <td><img src="DragonImage/AM1/Result1%20-%2030s.png" width="260" alt="Bedroom after appearance modulation"></td>
-  </tr>
-</table>
-
-**Comparison with [DragonDiffusion](https://github.com/MC-E/DragonDiffusion)**, the editing method this work builds on,
-on the same inputs. On these examples our interior-focused pipeline keeps object shape and fine detail better.
+Edits made with this tool: the original photo on the left, the edited result on the right.
 
 <table>
   <tr>
     <th>Original</th>
-    <th>DragonDiffusion</th>
-    <th>Ours</th>
+    <th>Edited</th>
+    <th>Original</th>
+    <th>Edited</th>
   </tr>
   <tr>
-    <td><img src="DragonImage/MO1/2-ori.png" width="260" alt="Original dining room"></td>
-    <td><img src="DragonImage/MO1/2-dragon.png" width="260" alt="Dining room edited by DragonDiffusion"></td>
-    <td><img src="DragonImage/MO1/2-our.png" width="260" alt="Dining room edited by our model"></td>
+    <td><img src="DragonImage/MO1/2-ori.png" width="190" alt="Original dining room"></td>
+    <td><img src="DragonImage/MO1/2-our.png" width="190" alt="Dining room after editing"></td>
+    <td><img src="img/1/Original/3.png" width="190" alt="Original vase"></td>
+    <td><img src="img/1/OurModel/3.png" width="190" alt="Vase after editing"></td>
   </tr>
   <tr>
-    <td><img src="img/1/Original/3.png" width="260" alt="Original vase"></td>
-    <td><img src="img/1/DragonDiffusion/3.png" width="260" alt="Vase edited by DragonDiffusion"></td>
-    <td><img src="img/1/OurModel/3.png" width="260" alt="Vase edited by our model"></td>
-  </tr>
-  <tr>
-    <td><img src="img/2/Original/3.png" width="260" alt="Original chandelier"></td>
-    <td><img src="img/2/DragonDiffusion/3.png" width="260" alt="Chandelier edited by DragonDiffusion"></td>
-    <td><img src="img/2/OurModel/3.png" width="260" alt="Chandelier edited by our model"></td>
-  </tr>
-  <tr>
-    <td><img src="img/3/Original/2.png" width="260" alt="Original side table"></td>
-    <td><img src="img/3/DragonDiffusion/2.png" width="260" alt="Side table edited by DragonDiffusion"></td>
-    <td><img src="img/3/OurModel/2.png" width="260" alt="Side table edited by our model"></td>
+    <td><img src="img/2/Original/3.png" width="190" alt="Original chandelier"></td>
+    <td><img src="img/2/OurModel/3.png" width="190" alt="Chandelier after editing"></td>
+    <td><img src="img/3/Original/2.png" width="190" alt="Original side table"></td>
+    <td><img src="img/3/OurModel/2.png" width="190" alt="Side table after editing"></td>
   </tr>
 </table>
-
-More examples are in [`img/`](img) and [`DragonImage/`](DragonImage).
 
 ## How it works
 
@@ -156,7 +131,6 @@ src/
   freeU/                    FreeU re-weighting of UNet blocks
   utils/                    DDIM inversion and image helpers
 sam/efficient_sam/          EfficientSAM model for box-to-mask segmentation
-img/, DragonImage/          Evaluation and comparison images
 test.py                     CLIP-score evaluation of generation with vs. without FreeU over 135 interior style prompts
 ```
 
