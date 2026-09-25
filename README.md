@@ -33,31 +33,6 @@ The app is a [Gradio](https://www.gradio.app/) web UI with four tools:
 
 Every edit also reports an **SSIM score** against the original photo, so you can see how much of the room was preserved.
 
-## Results
-
-Edits made with this tool: the original photo on the left, the edited result on the right.
-
-<table>
-  <tr>
-    <th>Original</th>
-    <th>Edited</th>
-    <th>Original</th>
-    <th>Edited</th>
-  </tr>
-  <tr>
-    <td><img src="DragonImage/MO1/2-ori.png" width="190" alt="Original dining room"></td>
-    <td><img src="DragonImage/MO1/2-our.png" width="190" alt="Dining room after editing"></td>
-    <td><img src="img/1/Original/3.png" width="190" alt="Original vase"></td>
-    <td><img src="img/1/OurModel/3.png" width="190" alt="Vase after editing"></td>
-  </tr>
-  <tr>
-    <td><img src="img/2/Original/3.png" width="190" alt="Original chandelier"></td>
-    <td><img src="img/2/OurModel/3.png" width="190" alt="Chandelier after editing"></td>
-    <td><img src="img/3/Original/2.png" width="190" alt="Original side table"></td>
-    <td><img src="img/3/OurModel/2.png" width="190" alt="Side table after editing"></td>
-  </tr>
-</table>
-
 ## How it works
 
 ```mermaid
